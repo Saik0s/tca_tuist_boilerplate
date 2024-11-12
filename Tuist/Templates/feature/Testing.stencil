@@ -1,0 +1,22 @@
+import XCTest
+import ComposableArchitecture
+@testable import \(name)
+import \(name)Interface
+
+public enum \(name)Testing {
+    public static func mockItem(id: UUID = UUID()) -> Item {
+        Item(id: id, title: "Mock Item", description: "Mock Description", createdAt: Date())
+    }
+
+    public static let mockClient = \(name)Client(
+        fetchItems: { [mockItem()] },
+        saveItems: { _ in }
+    )
+}
+
+extension \(name)Client {
+    public static let test = Self(
+        fetchItems: unimplemented("\(name)Client.fetchItems"),
+        saveItems: unimplemented("\(name)Client.saveItems")
+    )
+}

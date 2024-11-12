@@ -1,0 +1,53 @@
+import ProjectDescription
+
+let project = Project(
+    name: "\(name)",
+    organizationName: "\(organizationName)",
+    options: .options(
+        automaticSchemesOptions: .disabled
+    ),
+    targets: [
+        .target(
+            name: "\(name)",
+            destinations: [.\(platform)],
+            product: .framework,
+            bundleId: "com.\(organizationName).\(name)",
+            sources: ["Sources/**"],
+            dependencies: [
+                .external(name: "ComposableArchitecture"),
+                .external(name: "Inject"),
+                .target(name: "\(name)Interface"),
+            ]
+        ),
+        .target(
+            name: "\(name)Interface",
+            destinations: [.\(platform)],
+            product: .framework,
+            bundleId: "com.\(organizationName).\(name)Interface",
+            sources: ["Interface/Sources/**"]
+        ),
+        .target(
+            name: "\(name)Testing",
+            destinations: [.\(platform)],
+            product: .framework,
+            bundleId: "com.\(organizationName).\(name)Testing",
+            sources: ["Testing/Sources/**"],
+            dependencies: [
+                .target(name: "\(name)"),
+                .target(name: "\(name)Interface"),
+            ]
+        ),
+        .target(
+            name: "\(name)Tests",
+            destinations: [.\(platform)],
+            product: .unitTests,
+            bundleId: "com.\(organizationName).\(name)Tests",
+            sources: ["Tests/**"],
+            dependencies: [
+                .target(name: "\(name)"),
+                .target(name: "\(name)Testing"),
+                .external(name: "SnapshotTesting"),
+            ]
+        ),
+    ]
+)

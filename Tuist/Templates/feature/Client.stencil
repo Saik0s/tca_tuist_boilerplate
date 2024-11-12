@@ -1,0 +1,27 @@
+import ComposableArchitecture
+import \(name)Interface
+
+@DependencyClient
+public struct \(name)Client {
+    public var fetchItems: () async throws -> [Item]
+    public var saveItems: ([Item]) async throws -> Void
+}
+
+extension \(name)Client: DependencyKey {
+    public static let liveValue = Self(
+        fetchItems: {
+            // Implement actual API call here
+            []
+        },
+        saveItems: { _ in
+            // Implement actual API call here
+        }
+    )
+}
+
+extension DependencyValues {
+    public var client: \(name)Client {
+        get { self[\(name)Client.self] }
+        set { self[\(name)Client.self] = newValue }
+    }
+}
