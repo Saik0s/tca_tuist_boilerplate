@@ -3,6 +3,12 @@ import ProjectDescriptionHelpers
 
 let project = Project(
     name: "{{ name }}",
+    options: .options(
+      textSettings: .textSettings(
+        indentWidth: 2,
+        tabWidth: 2
+      )
+    ),
     targets: [
         .target(
             name: "{{ name }}",

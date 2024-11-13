@@ -20,7 +20,7 @@ extension {{ name }}Client: DependencyKey {
 }
 
 extension DependencyValues {
-    public var client: {{ name }}Client {
+    public var {{ name.charAt(0).toLowerCase() + name.slice(1) }}Client: {{ name }}Client {
         get { self[{{ name }}Client.self] }
         set { self[{{ name }}Client.self] = newValue }
     }

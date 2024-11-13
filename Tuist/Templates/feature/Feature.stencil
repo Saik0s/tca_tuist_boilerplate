@@ -38,7 +38,7 @@ public struct {{ name }}Feature {
         }
     }
 
-    @Dependency(\.client) var client
+    @Dependency(\.{{ name.charAt(0).toLowerCase() + name.slice(1) }}Client) var client
 
     public init() {}
 
