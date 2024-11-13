@@ -34,7 +34,7 @@ let project = Project(
       product: .staticFramework,
       bundleId: "\(env.organizationName).ListScreenInterface",
       deploymentTargets: env.deploymentTargets,
-      sources: ["Interface/Sources/**"],
+      sources: ["Interface/**"],
       dependencies: [
         .external(name: "Dependencies"),
         .external(name: "DependenciesMacros"),
@@ -47,7 +47,7 @@ let project = Project(
       product: .staticFramework,
       bundleId: "\(env.organizationName).ListScreenTesting",
       deploymentTargets: env.deploymentTargets,
-      sources: ["Testing/Sources/**"],
+      sources: ["Testing/**"],
       dependencies: [
         .target(name: "ListScreenInterface"),
       ]
