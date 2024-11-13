@@ -1,6 +1,6 @@
 # file options
 
---exclude scripts,Templates,.build,ApolloCodegen,.devxp,build,.tuist-bin,.vscode
+--exclude scripts,Templates,.build,ApolloCodegen,.devxp,build,.tuist-bin,.vscode,Tuist/Templates
 --exclude **/Derived/**.swift
 --exclude **/Generated/**.swift
 --exclude **/SwifterSwift/**.swift

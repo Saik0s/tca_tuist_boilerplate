@@ -1,24 +1,24 @@
 //
-// EditItemFeature.swift
+// {{ name }}EditItemFeature.swift
 //
 
 import ComposableArchitecture
-import {{ name }} Interface
+import {{ name }}Interface
 
 @Reducer
-public enum {{ name }} EditItem {
+public struct {{ name }}EditItem {
   @ObservableState
   public struct State: Equatable {
-    public var item: {{ name }} Item
+    public var item: {{ name }}Item
 
-    public init(item: {{ name }} Item) {
+    public init(item: {{ name }}Item) {
       self.item = item
     }
   }
 
   public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
-    case saveButtonTapped({{ name }} Item)
+    case saveButtonTapped({{ name }}Item)
     case cancelButtonTapped
   }
 

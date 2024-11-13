@@ -1,19 +1,19 @@
 //
-// View.swift
+// {{ name }}View.swift
 //
 
 import ComposableArchitecture
 import Inject
-import {{ name }} Interface
+import {{ name }}Interface
 import SwiftUI
 
 // MARK: - {{ name }}View
 
-public enum {{ name }} View: View {
+public struct {{ name }}View: View {
   @ObserveInjection var inject
-  @Bindable var store: StoreOf<{{ name }} Feature>
+  @Bindable var store: StoreOf<{{ name }}Feature>
 
-  public init(store: StoreOf<{{ name }} Feature>) {
+  public init(store: StoreOf<{{ name }}Feature>) {
     self.store = store
   }
 
@@ -21,7 +21,7 @@ public enum {{ name }} View: View {
     NavigationStack {
       List {
         ForEach(store.items) { item in
-          {{ name }} ItemView(item: item)
+          {{ name }}ItemView(item: item)
             .onTapGesture { store.send(.itemTapped(item.id)) }
         }
         .onDelete { store.send(.deleteItem($0)) }
@@ -46,14 +46,14 @@ public enum {{ name }} View: View {
       item: $store.scope(state: \.destination?.add, action: \.destination.add)
     ) { addStore in
       NavigationStack {
-        {{ name }} AddItemView(store: addStore)
+        {{ name }}AddItemView(store: addStore)
       }
     }
     .sheet(
       item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
     ) { editStore in
       NavigationStack {
-        {{ name }} EditItemView(store: editStore)
+        {{ name }}EditItemView(store: editStore)
       }
     }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
@@ -64,9 +64,9 @@ public enum {{ name }} View: View {
 
 // MARK: - {{ name }}AddItemView
 
-enum {{ name }} AddItemView: View {
+struct {{ name }}AddItemView: View {
   @ObserveInjection var inject
-  @Bindable var store: StoreOf<{{ name }} AddItem>
+  @Bindable var store: StoreOf<{{ name }}AddItem>
 
   var body: some View {
     Form {
@@ -88,9 +88,9 @@ enum {{ name }} AddItemView: View {
 
 // MARK: - {{ name }}EditItemView
 
-enum {{ name }} EditItemView: View {
+struct {{ name }}EditItemView: View {
   @ObserveInjection var inject
-  @Bindable var store: StoreOf<{{ name }} EditItem>
+  @Bindable var store: StoreOf<{{ name }}EditItem>
 
   var body: some View {
     Form {

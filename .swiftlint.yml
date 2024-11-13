@@ -16,6 +16,7 @@ excluded:
   - "**/Derived"
   - "**/.build"
   - ".vscode"
+  - "Tuist/Templates"
 
 disabled_rules:
   - todo

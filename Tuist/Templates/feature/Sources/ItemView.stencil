@@ -1,14 +1,14 @@
 //
-// ItemView.swift
+// {{ name }}ItemView.swift
 //
 
 import Inject
-import {{ name }} Interface
+import {{ name }}Interface
 import SwiftUI
 
-enum {{ name }} ItemView: View {
+struct {{ name }}ItemView: View {
   @ObserveInjection var inject
-  let item: {{ name }} Item
+  let item: {{ name }}Item
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
