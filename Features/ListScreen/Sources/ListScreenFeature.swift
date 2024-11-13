@@ -18,8 +18,16 @@ public struct ListScreenFeature {
     var filterCriteria: ListScreenFilterCriteria?
     @Presents var destination: Destination.State?
 
-    public init(items: IdentifiedArrayOf<ListScreenItem> = []) {
+    public init(
+      items: IdentifiedArrayOf<ListScreenItem> = [],
+      isLoading: Bool = false,
+      sortOrder: ListScreenSortOrder = .custom,
+      filterCriteria: ListScreenFilterCriteria? = nil
+    ) {
       self.items = items
+      self.isLoading = isLoading
+      self.sortOrder = sortOrder
+      self.filterCriteria = filterCriteria
     }
   }
 
