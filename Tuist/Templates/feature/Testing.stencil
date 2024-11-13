@@ -1,22 +1,40 @@
-import XCTest
-import ComposableArchitecture
-@testable import {{ name }}
+import Foundation
+import IdentifiedCollections
 import {{ name }}Interface
 
-public enum {{ name }}Testing {
-    public static func mockItem(id: UUID = UUID()) -> Item {
-        Item(id: id, title: "Mock Item", description: "Mock Description", createdAt: Date())
-    }
+public extension {{ name }}Item {
+  static let mock = {{ name }}Item(
+    id: UUID(0),
+    title: "Mock Item",
+    description: "Mock Description",
+    createdAt: Date(timeIntervalSince1970: 0)
+  )
 
-    public static let mockClient = {{ name }}Client(
-        fetchItems: { [mockItem()] },
-        saveItems: { _ in }
-    )
+  static let mocks: IdentifiedArrayOf<{{ name }}Item> = [
+    {{ name }}Item(
+      id: UUID(0),
+      title: "First Item",
+      description: "First Description",
+      createdAt: Date(timeIntervalSince1970: 0)
+    ),
+    {{ name }}Item(
+      id: UUID(1),
+      title: "Second Item",
+      description: "Second Description",
+      createdAt: Date(timeIntervalSince1970: 1)
+    ),
+    {{ name }}Item(
+      id: UUID(2),
+      title: "Third Item",
+      description: "Third Description",
+      createdAt: Date(timeIntervalSince1970: 2)
+    ),
+  ]
 }
 
-extension {{ name }}Client {
-    public static let test = Self(
-        fetchItems: unimplemented("{{ name }}Client.fetchItems"),
-        saveItems: unimplemented("{{ name }}Client.saveItems")
-    )
+public extension {{ name }}Client {
+  static let previewValue = Self(
+    fetchItems: { {{ name }}Item.mocks },
+    saveItems: { _ in }
+  )
 }
