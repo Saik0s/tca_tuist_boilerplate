@@ -1,12 +1,20 @@
+//
+// {{ name }}Client.swift
+//
+
 import Dependencies
 import DependenciesMacros
 import IdentifiedCollections
+
+// MARK: - {{ name }}Client
 
 @DependencyClient
 public struct {{ name }}Client {
   public var fetchItems: () async throws -> IdentifiedArrayOf<{{ name }}Item>
   public var saveItems: ([{{ name }}Item]) async throws -> Void
 }
+
+// MARK: TestDependencyKey
 
 extension {{ name }}Client: TestDependencyKey {
   public static let testValue = Self()

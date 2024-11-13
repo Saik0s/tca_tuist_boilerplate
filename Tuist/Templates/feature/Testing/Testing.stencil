@@ -1,3 +1,7 @@
+//
+// {{ name }}Testing.swift
+//
+
 import Foundation
 import IdentifiedCollections
 import {{ name }}Interface

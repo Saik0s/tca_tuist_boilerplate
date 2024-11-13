@@ -1,18 +1,19 @@
+//
+// Tests.swift
+//
+
 import ComposableArchitecture
 import Foundation
 @testable import {{ name }}
-import {{ name }}Interface
-import {{ name }}Testing
-import Testing
 
 @MainActor
-struct {{ name }}Tests {
+enum {{ name }} Tests {
   @Test
   func testInitialState() async {
-    let store = TestStore(initialState: {{ name }}Feature.State()) {
-      {{ name }}Feature()
+    let store = TestStore(initialState: {{ name }} Feature.State()) {
+      {{ name }} Feature()
     } withDependencies: {
-      $0.{{ name.charAt(0).toLowerCase() + name.slice(1) }}Client.fetchItems = { {{ name }}Item.mocks }
+      $0.{{ name | lowerFirstWord }} Client.fetchItems = { {{ name }} Item.mocks }
     }
     store.exhaustivity = .off
 
@@ -21,13 +22,12 @@ struct {{ name }}Tests {
     }
   }
 
-
   @Test
   func testLoadItems_Success() async {
-    let store = TestStore(initialState: {{ name }}Feature.State()) {
-      {{ name }}Feature()
+    let store = TestStore(initialState: {{ name }} Feature.State()) {
+      {{ name }} Feature()
     } withDependencies: {
-      $0.{{ name.charAt(0).toLowerCase() + name.slice(1) }}Client.fetchItems = { {{ name }}Item.mocks }
+      $0.{{ name | lowerFirstWord }} Client.fetchItems = { {{ name }} Item.mocks }
     }
 
     await store.send(.onAppear) {
@@ -36,16 +36,16 @@ struct {{ name }}Tests {
 
     await store.receive(\.itemsResponse.success) {
       $0.isLoading = false
-      $0.items = {{ name }}Item.mocks
+      $0.items = {{ name }} Item.mocks
     }
   }
 
   @Test
   func testLoadItems_Failure() async {
-    let store = TestStore(initialState: {{ name }}Feature.State()) {
-      {{ name }}Feature()
+    let store = TestStore(initialState: {{ name }} Feature.State()) {
+      {{ name }} Feature()
     } withDependencies: {
-      $0.{{ name.charAt(0).toLowerCase() + name.slice(1) }}Client.fetchItems = {
+      $0.{{ name | lowerFirstWord }} Client.fetchItems = {
         struct FetchError: Error {}
         throw FetchError()
       }
@@ -71,17 +71,17 @@ struct {{ name }}Tests {
   func testAddItem() async {
     let date = Date(timeIntervalSince1970: 0)
 
-    let store = TestStore(initialState: {{ name }}Feature.State()) {
-      {{ name }}Feature()
+    let store = TestStore(initialState: {{ name }} Feature.State()) {
+      {{ name }} Feature()
     } withDependencies: {
-      $0.{{ name.charAt(0).toLowerCase() + name.slice(1) }}Client.saveItems = { _ in }
+      $0.{{ name | lowerFirstWord }} Client.saveItems = { _ in }
       $0.uuid = .incrementing
       $0.date = .constant(date)
     }
 
-    let item = {{ name }}Item(id: UUID(0), title: "New Item", description: "", createdAt: date)
+    let item = {{ name }} Item(id: UUID(0), title: "New Item", description: "", createdAt: date)
     await store.send(.addButtonTapped) {
-      $0.destination = .add({{ name }}AddItem.State(item: item))
+      $0.destination = .add({{ name }} AddItem.State(item: item))
     }
 
     await store.send(.destination(.presented(.add(.saveButtonTapped(item))))) {
@@ -94,16 +94,16 @@ struct {{ name }}Tests {
   func testAddItem_Cancel() async {
     let date = Date(timeIntervalSince1970: 0)
 
-    let store = TestStore(initialState: {{ name }}Feature.State()) {
-      {{ name }}Feature()
+    let store = TestStore(initialState: {{ name }} Feature.State()) {
+      {{ name }} Feature()
     } withDependencies: {
       $0.uuid = .incrementing
       $0.date = .constant(date)
     }
 
-    let item = {{ name }}Item(id: UUID(0), title: "New Item", description: "", createdAt: date)
+    let item = {{ name }} Item(id: UUID(0), title: "New Item", description: "", createdAt: date)
     await store.send(.addButtonTapped) {
-      $0.destination = .add({{ name }}AddItem.State(item: item))
+      $0.destination = .add({{ name }} AddItem.State(item: item))
     }
 
     await store.send(.destination(.presented(.add(.cancelButtonTapped)))) {
@@ -113,17 +113,17 @@ struct {{ name }}Tests {
 
   @Test
   func testEditItem() async {
-    let item = {{ name }}Item.mock
+    let item = {{ name }} Item.mock
     let store = TestStore(
-      initialState: {{ name }}Feature.State(items: [item])
+      initialState: {{ name }} Feature.State(items: [item])
     ) {
-      {{ name }}Feature()
+      {{ name }} Feature()
     } withDependencies: {
-      $0.{{ name.charAt(0).toLowerCase() + name.slice(1) }}Client.saveItems = { _ in }
+      $0.{{ name | lowerFirstWord }} Client.saveItems = { _ in }
     }
 
     await store.send(.itemTapped(item.id)) {
-      $0.destination = .edit({{ name }}EditItem.State(item: item))
+      $0.destination = .edit({{ name }} EditItem.State(item: item))
     }
 
     var editedItem = item
@@ -137,15 +137,15 @@ struct {{ name }}Tests {
 
   @Test
   func testEditItem_Cancel() async {
-    let item = {{ name }}Item.mock
+    let item = {{ name }} Item.mock
     let store = TestStore(
-      initialState: {{ name }}Feature.State(items: [item])
+      initialState: {{ name }} Feature.State(items: [item])
     ) {
-      {{ name }}Feature()
+      {{ name }} Feature()
     }
 
     await store.send(.itemTapped(item.id)) {
-      $0.destination = .edit({{ name }}EditItem.State(item: item))
+      $0.destination = .edit({{ name }} EditItem.State(item: item))
     }
 
     await store.send(.destination(.presented(.edit(.cancelButtonTapped)))) {
@@ -155,13 +155,13 @@ struct {{ name }}Tests {
 
   @Test
   func testDeleteItem() async {
-    let item = {{ name }}Item.mock
+    let item = {{ name }} Item.mock
     let store = TestStore(
-      initialState: {{ name }}Feature.State(items: [item])
+      initialState: {{ name }} Feature.State(items: [item])
     ) {
-      {{ name }}Feature()
+      {{ name }} Feature()
     } withDependencies: {
-      $0.{{ name.charAt(0).toLowerCase() + name.slice(1) }}Client.saveItems = { _ in }
+      $0.{{ name | lowerFirstWord }} Client.saveItems = { _ in }
     }
 
     await store.send(.deleteItem([0])) {
@@ -189,15 +189,15 @@ struct {{ name }}Tests {
 
   @Test
   func testSortItems() async {
-    let items: IdentifiedArrayOf<{{ name }}Item> = [
-      {{ name }}Item(id: UUID(0), title: "B Item", description: "", createdAt: Date(timeIntervalSince1970: 2)),
-      {{ name }}Item(id: UUID(1), title: "A Item", description: "", createdAt: Date(timeIntervalSince1970: 1)),
+    let items: IdentifiedArrayOf<{{ name }} Item> = [
+      {{ name }} Item(id: UUID(0), title: "B Item", description: "", createdAt: Date(timeIntervalSince1970: 2)),
+      {{ name }} Item(id: UUID(1), title: "A Item", description: "", createdAt: Date(timeIntervalSince1970: 1)),
     ]
 
     let store = TestStore(
-      initialState: {{ name }}Feature.State(items: items)
+      initialState: {{ name }} Feature.State(items: items)
     ) {
-      {{ name }}Feature()
+      {{ name }} Feature()
     }
 
     await store.send(.setSortOrder(.alphabetical)) {
@@ -213,15 +213,15 @@ struct {{ name }}Tests {
 
   @Test
   func testFilterItems() async {
-    let items = {{ name }}Item.mocks
+    let items = {{ name }} Item.mocks
     let store = TestStore(
-      initialState: {{ name }}Feature.State(items: items)
+      initialState: {{ name }} Feature.State(items: items)
     ) {
-      {{ name }}Feature()
+      {{ name }} Feature()
     }
 
-    await store.send(.setFilterCriteria({{ name }}FilterCriteria(searchText: "First"))) {
-      $0.filterCriteria = {{ name }}FilterCriteria(searchText: "First")
+    await store.send(.setFilterCriteria({{ name }} FilterCriteria(searchText: "First"))) {
+      $0.filterCriteria = {{ name }} FilterCriteria(searchText: "First")
     }
   }
 }

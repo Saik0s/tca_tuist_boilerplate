@@ -1,47 +1,53 @@
+//
+// Feature.swift
+//
+
 import ComposableArchitecture
-import {{ name }}Interface
+import {{ name }} Interface
 import SwiftUI
 
+// MARK: - {{ name }}Feature
+
 @Reducer
-public struct {{ name }}Feature {
+public enum {{ name }} Feature {
   @ObservableState
   public struct State: Equatable {
-    var items: IdentifiedArrayOf<{{ name }}Item> = []
+    var items: IdentifiedArrayOf<{{ name }} Item> = []
     var isLoading = false
-    var sortOrder: {{ name }}SortOrder = .custom
-    var filterCriteria: {{ name }}FilterCriteria?
+    var sortOrder: {{ name }} SortOrder = .custom
+    var filterCriteria: {{ name }} FilterCriteria?
     @Presents var destination: Destination.State?
 
-    public init(items: IdentifiedArrayOf<{{ name }}Item> = []) {
+    public init(items: IdentifiedArrayOf<{{ name }} Item> = []) {
       self.items = items
     }
   }
 
   @Reducer(state: .equatable)
   public enum Destination {
-    case add({{ name }}AddItem)
-    case edit({{ name }}EditItem)
+    case add({{ name }} AddItem)
+    case edit({{ name }} EditItem)
     case alert(AlertState<Alert>)
 
     @CasePathable
     public enum Alert: Equatable {
-      case confirmDeletion({{ name }}Item.ID)
+      case confirmDeletion({{ name }} Item.ID)
     }
   }
 
   public enum Action {
     case onAppear
-    case itemsResponse(TaskResult<IdentifiedArrayOf<{{ name }}Item>>)
+    case itemsResponse(TaskResult<IdentifiedArrayOf<{{ name }} Item>>)
     case addButtonTapped
     case destination(PresentationAction<Destination.Action>)
-    case itemTapped({{ name }}Item.ID)
+    case itemTapped({{ name }} Item.ID)
     case moveItem(from: IndexSet, to: Int)
     case deleteItem(IndexSet)
-    case setSortOrder({{ name }}SortOrder)
-    case setFilterCriteria({{ name }}FilterCriteria?)
+    case setSortOrder({{ name }} SortOrder)
+    case setFilterCriteria({{ name }} FilterCriteria?)
   }
 
-  @Dependency(\.{{ name.charAt(0).toLowerCase() + name.slice(1) }}Client) var client
+  @Dependency(\.{{ name | lowerFirstWord }} Client) var client
   @Dependency(\.date) var date
   @Dependency(\.uuid) var uuid
 
@@ -67,18 +73,19 @@ public struct {{ name }}Feature {
           AlertState(
             title: { TextState("Error") },
             actions: { ButtonState(role: .cancel) { TextState("OK") } },
-            message: { TextState("Failed to load items") })
+            message: { TextState("Failed to load items") }
+          )
         )
         return .none
 
       case .addButtonTapped:
-        let item = {{ name }}Item(
+        let item = {{ name }} Item(
           id: uuid(),
-          title: "",
+          title: "New Item",
           description: "",
           createdAt: date()
         )
-        state.destination = .add({{ name }}AddItem.State(item: item))
+        state.destination = .add({{ name }} AddItem.State(item: item))
         return .none
 
       case let .destination(.presented(.add(.saveButtonTapped(item)))):
@@ -90,7 +97,7 @@ public struct {{ name }}Feature {
 
       case let .itemTapped(id):
         guard let item = state.items[id: id] else { return .none }
-        state.destination = .edit({{ name }}EditItem.State(item: item))
+        state.destination = .edit({{ name }} EditItem.State(item: item))
         return .none
 
       case let .destination(.presented(.edit(.saveButtonTapped(item)))):
@@ -146,7 +153,7 @@ public struct {{ name }}Feature {
         return .none
 
       case .destination(.presented(.add(.cancelButtonTapped))),
-        .destination(.presented(.edit(.cancelButtonTapped))):
+           .destination(.presented(.edit(.cancelButtonTapped))):
         state.destination = nil
         return .none
 
@@ -157,4 +164,3 @@ public struct {{ name }}Feature {
     .ifLet(\.$destination, action: \.destination)
   }
 }
-

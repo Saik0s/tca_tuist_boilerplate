@@ -1,6 +1,12 @@
+//
+// Live{{ name }}Client.swift
+//
+
 import ComposableArchitecture
 import Foundation
 import {{ name }}Interface
+
+// MARK: - {{ name }}Client + DependencyKey
 
 extension {{ name }}Client: @retroactive DependencyKey {
   public static let liveValue = Self(
@@ -28,8 +34,8 @@ extension {{ name }}Client: @retroactive DependencyKey {
   )
 }
 
-extension DependencyValues {
-  public var {{ name.charAt(0).toLowerCase() + name.slice(1) }}Client: {{ name }}Client {
+public extension DependencyValues {
+  var {{ name | lowerFirstWord }}Client: {{ name }}Client {
     get { self[{{ name }}Client.self] }
     set { self[{{ name }}Client.self] = newValue }
   }

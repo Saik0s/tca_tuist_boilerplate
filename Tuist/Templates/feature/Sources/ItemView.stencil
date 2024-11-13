@@ -1,0 +1,27 @@
+//
+// ItemView.swift
+//
+
+import Inject
+import {{ name }} Interface
+import SwiftUI
+
+enum {{ name }} ItemView: View {
+  @ObserveInjection var inject
+  let item: {{ name }} Item
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 4) {
+      Text(item.title)
+        .font(.headline)
+      Text(item.description)
+        .font(.subheadline)
+        .foregroundColor(.secondary)
+      Text(item.createdAt, style: .date)
+        .font(.caption)
+        .foregroundColor(.secondary)
+    }
+    .padding(.vertical, 4)
+    .enableInjection()
+  }
+}

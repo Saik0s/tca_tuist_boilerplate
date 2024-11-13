@@ -1,7 +1,13 @@
+//
+// Models.swift
+//
+
 import Foundation
 import IdentifiedCollections
 
-public struct {{ name }}Item: Equatable, Identifiable, Codable {
+// MARK: - {{ name }}Item
+
+public enum {{ name }} Item: Equatable, Identifiable, Codable {
   public let id: UUID
   public var title: String
   public var description: String
@@ -15,11 +21,15 @@ public struct {{ name }}Item: Equatable, Identifiable, Codable {
   }
 }
 
-public enum {{ name }}SortOrder: Equatable, CaseIterable {
+// MARK: - {{ name }}SortOrder
+
+public enum {{ name }} SortOrder: Equatable, CaseIterable {
   case alphabetical, date, custom
 }
 
-public struct {{ name }}FilterCriteria: Equatable {
+// MARK: - {{ name }}FilterCriteria
+
+public enum {{ name }} FilterCriteria: Equatable {
   public var searchText: String
 
   public init(searchText: String) {

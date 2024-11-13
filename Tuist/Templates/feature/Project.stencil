@@ -1,0 +1,69 @@
+//
+// Project.swift
+//
+
+import ProjectDescription
+import ProjectDescriptionHelpers
+
+let project = Project(
+  name: "{{ name }}",
+  options: .options(
+    textSettings: .textSettings(
+      indentWidth: 2,
+      tabWidth: 2
+    )
+  ),
+  targets: [
+    .target(
+      name: "{{ name }}",
+      destinations: env.destinations,
+      product: .staticFramework,
+      bundleId: "\(env.organizationName).{{ name }}",
+      deploymentTargets: env.deploymentTargets,
+      sources: ["Sources/**"],
+      dependencies: [
+        .external(name: "ComposableArchitecture"),
+        .external(name: "Inject"),
+        .target(name: "{{ name }}Interface"),
+        .target(name: "{{ name }}Testing"),
+      ]
+    ),
+    .target(
+      name: "{{ name }}Interface",
+      destinations: env.destinations,
+      product: .staticFramework,
+      bundleId: "\(env.organizationName).{{ name }}Interface",
+      deploymentTargets: env.deploymentTargets,
+      sources: ["Interface/Sources/**"],
+      dependencies: [
+        .external(name: "Dependencies"),
+        .external(name: "DependenciesMacros"),
+        .external(name: "IdentifiedCollections"),
+      ]
+    ),
+    .target(
+      name: "{{ name }}Testing",
+      destinations: env.destinations,
+      product: .staticFramework,
+      bundleId: "\(env.organizationName).{{ name }}Testing",
+      deploymentTargets: env.deploymentTargets,
+      sources: ["Testing/Sources/**"],
+      dependencies: [
+        .target(name: "{{ name }}Interface"),
+      ]
+    ),
+    .target(
+      name: "{{ name }}Tests",
+      destinations: env.destinations,
+      product: .unitTests,
+      bundleId: "\(env.organizationName).{{ name }}Tests",
+      deploymentTargets: env.deploymentTargets,
+      sources: ["Tests/**"],
+      dependencies: [
+        .target(name: "{{ name }}"),
+        .target(name: "{{ name }}Testing"),
+        .external(name: "SnapshotTesting"),
+      ]
+    ),
+  ]
+)
