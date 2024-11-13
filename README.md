@@ -35,7 +35,8 @@ Features/               # Feature modules
 
 Tuist/                 # Project generation
 ├── Templates/         # Feature templates
-└── ProjectDescriptionHelpers/  # Shared config
+├── Package.swift      # Dependencies
+└── Config.swift       # Build configuration
 ```
 
 ## Feature Template
@@ -44,14 +45,20 @@ The template generates a complete feature module with:
 
 ### Generated Files
 - `Project.swift` - Feature module configuration
+- `Interface/`
+  - `[Feature]Client.swift` - API interface
+  - `[Feature]Models.swift` - Data models
 - `Sources/`
   - `[Feature]Feature.swift` - TCA reducer & logic
   - `[Feature]View.swift` - Main SwiftUI view
   - `[Feature]ItemView.swift` - List item view
-  - `[Feature]Client.swift` - API client
-- `Interface/Sources/[Feature]Interface.swift` - Public API
-- `Testing/Sources/[Feature]Testing.swift` - Test helpers
-- `Tests/[Feature]Tests.swift` - Unit tests
+  - `[Feature]AddItemFeature.swift` - Add item flow
+  - `[Feature]EditItemFeature.swift` - Edit item flow
+  - `Live[Feature]Client.swift` - API implementation
+- `Testing/[Feature]Testing.swift` - Test helpers
+- `Tests/`
+  - `[Feature]Tests.swift` - Unit tests
+  - `[Feature]SnapshotTests.swift` - UI tests
 
 ### Using the Template
 
@@ -97,6 +104,12 @@ make format
 make clean
 ```
 
+### Cache External Dependencies
+
+```bash
+make cache
+```
+
 ## Pre-commit Hooks
 
 The project includes pre-commit hooks for code formatting. Install them:
@@ -108,8 +121,4 @@ pre-commit install
 
 ## Tools & Versions
 
-- Tuist: 4.33.0
-- SwiftLint: 0.54.0
-- SwiftFormat: 0.53.3
-
-All tool versions are managed by mise and defined in `.mise.toml`.
+Tool versions are managed by mise and defined in `.mise.toml`.
