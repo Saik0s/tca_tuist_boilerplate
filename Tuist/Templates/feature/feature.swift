@@ -30,5 +30,6 @@ let template = Template(
     // Testing files
     .file(path: "Features/\(nameAttribute)/Testing/\(nameAttribute)Testing.swift", templatePath: "Testing/Testing.stencil"),
     .file(path: "Features/\(nameAttribute)/Tests/\(nameAttribute)Tests.swift", templatePath: "Tests/Tests.stencil"),
+    .file(path: "Features/\(nameAttribute)/Tests/\(nameAttribute)SnapshotTests.swift", templatePath: "Tests/SnapshotTests.stencil"),
   ]
 )

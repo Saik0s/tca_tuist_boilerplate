@@ -1,18 +1,18 @@
 //
-// ListScreenSnapshotTests.swift
+// {{ name }}SnapshotTests.swift
 //
 
 import ComposableArchitecture
-@testable import ListScreen
-import ListScreenInterface
+@testable import {{ name }}
+import {{ name }}Interface
 import SnapshotTesting
 import SwiftUI
 import XCTest
 
 @MainActor
-final class ListScreenSnapshotTests: XCTestCase {
-  func testListScreenView() async {
-    let view = ListScreenView(store: .init(initialState: ListScreenFeature.State(items: ListScreenItem.mocks)) {})
+final class {{ name }}SnapshotTests: XCTestCase {
+  func test{{ name }}View() async {
+    let view = {{ name }}View(store: .init(initialState: {{ name }}Feature.State(items: {{ name }}Item.mocks)) {})
 
     assertSnapshot(
       of: view,
@@ -21,7 +21,7 @@ final class ListScreenSnapshotTests: XCTestCase {
     )
 
     // Test loading state
-    let loadingView = ListScreenView(store: .init(initialState: ListScreenFeature.State(isLoading: true)) {})
+    let loadingView = {{ name }}View(store: .init(initialState: {{ name }}Feature.State(isLoading: true)) {})
     assertSnapshot(
       of: loadingView,
       as: .image(precision: 0.98, layout: .device(config: .iPhoneXsMax)),
@@ -29,7 +29,7 @@ final class ListScreenSnapshotTests: XCTestCase {
     )
 
     // Test empty state
-    let emptyView = ListScreenView(store: .init(initialState: ListScreenFeature.State()) {})
+    let emptyView = {{ name }}View(store: .init(initialState: {{ name }}Feature.State()) {})
     assertSnapshot(
       of: emptyView,
       as: .image(precision: 0.98, layout: .device(config: .iPhoneXsMax)),
@@ -37,9 +37,9 @@ final class ListScreenSnapshotTests: XCTestCase {
     )
   }
 
-  func testListScreenAddItemView() {
+  func test{{ name }}AddItemView() {
     let view = NavigationStack {
-      ListScreenAddItemView(store: .init(initialState: ListScreenAddItem.State(item: ListScreenItem.mock)) {})
+      {{ name }}AddItemView(store: .init(initialState: {{ name }}AddItem.State(item: {{ name }}Item.mock)) {})
     }
 
     assertSnapshot(
@@ -49,9 +49,9 @@ final class ListScreenSnapshotTests: XCTestCase {
     )
   }
 
-  func testListScreenEditItemView() {
+  func test{{ name }}EditItemView() {
     let view = NavigationStack {
-      ListScreenEditItemView(store: .init(initialState: ListScreenEditItem.State(item: ListScreenItem.mock)) {})
+      {{ name }}EditItemView(store: .init(initialState: {{ name }}EditItem.State(item: {{ name }}Item.mock)) {})
     }
 
     assertSnapshot(

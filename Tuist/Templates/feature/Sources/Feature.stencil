@@ -18,8 +18,16 @@ public struct {{ name }}Feature {
     var filterCriteria: {{ name }}FilterCriteria?
     @Presents var destination: Destination.State?
 
-    public init(items: IdentifiedArrayOf<{{ name }}Item> = []) {
+    public init(
+      items: IdentifiedArrayOf<{{ name }}Item> = [],
+      isLoading: Bool = false,
+      sortOrder: {{ name }}SortOrder = .custom,
+      filterCriteria: {{ name }}FilterCriteria? = nil
+    ) {
       self.items = items
+      self.isLoading = isLoading
+      self.sortOrder = sortOrder
+      self.filterCriteria = filterCriteria
     }
   }
 
