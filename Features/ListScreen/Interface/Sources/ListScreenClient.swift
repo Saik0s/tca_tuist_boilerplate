@@ -14,15 +14,6 @@ public struct ListScreenClient {
   public var saveItems: ([ListScreenItem]) async throws -> Void
 }
 
-// MARK: TestDependencyKey
-
 extension ListScreenClient: TestDependencyKey {
   public static let testValue = Self()
-}
-
-public extension DependencyValues {
-  var listScreenClient: ListScreenClient {
-    get { self[ListScreenClient.self] }
-    set { self[ListScreenClient.self] = newValue }
-  }
 }

@@ -72,7 +72,6 @@ struct ListScreenTests {
 
   @Test
   func testAddItem() async {
-    @Dependency(\.uuid) var uuid
     let date = Date(timeIntervalSince1970: 0)
 
     let store = TestStore(initialState: ListScreenFeature.State()) {
@@ -85,12 +84,33 @@ struct ListScreenTests {
 
     let item = ListScreenItem(id: UUID(0), title: "New Item", description: "", createdAt: date)
     await store.send(.addButtonTapped) {
-      $0.destination = .add(AddItem.State(item: item))
+      $0.destination = .add(ListScreenAddItem.State(item: item))
     }
 
     await store.send(.destination(.presented(.add(.saveButtonTapped(item))))) {
       $0.destination = nil
       $0.items = [item]
+    }
+  }
+
+  @Test
+  func testAddItem_Cancel() async {
+    let date = Date(timeIntervalSince1970: 0)
+
+    let store = TestStore(initialState: ListScreenFeature.State()) {
+      ListScreenFeature()
+    } withDependencies: {
+      $0.uuid = .incrementing
+      $0.date = .constant(date)
+    }
+
+    let item = ListScreenItem(id: UUID(0), title: "New Item", description: "", createdAt: date)
+    await store.send(.addButtonTapped) {
+      $0.destination = .add(ListScreenAddItem.State(item: item))
+    }
+
+    await store.send(.destination(.presented(.add(.cancelButtonTapped)))) {
+      $0.destination = nil
     }
   }
 
@@ -106,7 +126,7 @@ struct ListScreenTests {
     }
 
     await store.send(.itemTapped(item.id)) {
-      $0.destination = .edit(EditItem.State(item: item))
+      $0.destination = .edit(ListScreenEditItem.State(item: item))
     }
 
     var editedItem = item
@@ -115,6 +135,24 @@ struct ListScreenTests {
     await store.send(.destination(.presented(.edit(.saveButtonTapped(editedItem))))) {
       $0.destination = nil
       $0.items[id: item.id]?.title = "Updated Title"
+    }
+  }
+
+  @Test
+  func testEditItem_Cancel() async {
+    let item = ListScreenItem.mock
+    let store = TestStore(
+      initialState: ListScreenFeature.State(items: [item])
+    ) {
+      ListScreenFeature()
+    }
+
+    await store.send(.itemTapped(item.id)) {
+      $0.destination = .edit(ListScreenEditItem.State(item: item))
+    }
+
+    await store.send(.destination(.presented(.edit(.cancelButtonTapped)))) {
+      $0.destination = nil
     }
   }
 

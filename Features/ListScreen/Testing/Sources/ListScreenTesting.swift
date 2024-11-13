@@ -41,6 +41,4 @@ public extension ListScreenClient {
     fetchItems: { ListScreenItem.mocks },
     saveItems: { _ in }
   )
-
-  static let testValue = Self()
 }

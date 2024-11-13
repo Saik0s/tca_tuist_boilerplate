@@ -25,8 +25,8 @@ public struct ListScreenFeature {
 
   @Reducer(state: .equatable)
   public enum Destination {
-    case add(AddItem)
-    case edit(EditItem)
+    case add(ListScreenAddItem)
+    case edit(ListScreenEditItem)
     case alert(AlertState<Alert>)
 
     @CasePathable
@@ -70,9 +70,10 @@ public struct ListScreenFeature {
       case .itemsResponse(.failure):
         state.isLoading = false
         state.destination = .alert(
-          AlertState(title: { TextState("Error") },
-                     actions: { ButtonState(role: .cancel) { TextState("OK") } },
-                     message: { TextState("Failed to load items") })
+          AlertState(
+            title: { TextState("Error") },
+            actions: { ButtonState(role: .cancel) { TextState("OK") } },
+            message: { TextState("Failed to load items") })
         )
         return .none
 
@@ -83,7 +84,7 @@ public struct ListScreenFeature {
           description: "",
           createdAt: date()
         )
-        state.destination = .add(AddItem.State(item: item))
+        state.destination = .add(ListScreenAddItem.State(item: item))
         return .none
 
       case let .destination(.presented(.add(.saveButtonTapped(item)))):
@@ -95,7 +96,7 @@ public struct ListScreenFeature {
 
       case let .itemTapped(id):
         guard let item = state.items[id: id] else { return .none }
-        state.destination = .edit(EditItem.State(item: item))
+        state.destination = .edit(ListScreenEditItem.State(item: item))
         return .none
 
       case let .destination(.presented(.edit(.saveButtonTapped(item)))):
@@ -150,80 +151,15 @@ public struct ListScreenFeature {
         state.filterCriteria = criteria
         return .none
 
+      case .destination(.presented(.add(.cancelButtonTapped))),
+        .destination(.presented(.edit(.cancelButtonTapped))):
+        state.destination = nil
+        return .none
+
       case .destination:
         return .none
       }
     }
     .ifLet(\.$destination, action: \.destination)
-  }
-}
-
-// MARK: - AddItem
-
-@Reducer
-public struct AddItem {
-  @ObservableState
-  public struct State: Equatable {
-    public var item: ListScreenItem
-
-    public init(item: ListScreenItem) {
-      self.item = item
-    }
-  }
-
-  public enum Action: BindableAction, Equatable {
-    case binding(BindingAction<State>)
-    case saveButtonTapped(ListScreenItem)
-    case cancelButtonTapped
-  }
-
-  public init() {}
-
-  public var body: some ReducerOf<Self> {
-    BindingReducer()
-
-    Reduce { _, action in
-      switch action {
-      case .binding:
-        .none
-      case .cancelButtonTapped, .saveButtonTapped:
-        .none
-      }
-    }
-  }
-}
-
-// MARK: - EditItem
-
-@Reducer
-public struct EditItem {
-  @ObservableState
-  public struct State: Equatable {
-    public var item: ListScreenItem
-
-    public init(item: ListScreenItem) {
-      self.item = item
-    }
-  }
-
-  public enum Action: BindableAction, Equatable {
-    case binding(BindingAction<State>)
-    case saveButtonTapped(ListScreenItem)
-    case cancelButtonTapped
-  }
-
-  public init() {}
-
-  public var body: some ReducerOf<Self> {
-    BindingReducer()
-
-    Reduce { _, action in
-      switch action {
-      case .binding:
-        .none
-      case .cancelButtonTapped, .saveButtonTapped:
-        .none
-      }
-    }
   }
 }

@@ -31,3 +31,10 @@ extension ListScreenClient: @retroactive DependencyKey {
     }
   )
 }
+
+extension DependencyValues {
+  public var listScreenClient: ListScreenClient {
+    get { self[ListScreenClient.self] }
+    set { self[ListScreenClient.self] = newValue }
+  }
+}

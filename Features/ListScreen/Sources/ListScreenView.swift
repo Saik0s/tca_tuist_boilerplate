@@ -46,14 +46,14 @@ public struct ListScreenView: View {
       item: $store.scope(state: \.destination?.add, action: \.destination.add)
     ) { addStore in
       NavigationStack {
-        AddItemView(store: addStore)
+        ListScreenAddItemView(store: addStore)
       }
     }
     .sheet(
       item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
     ) { editStore in
       NavigationStack {
-        EditItemView(store: editStore)
+        ListScreenEditItemView(store: editStore)
       }
     }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
@@ -62,11 +62,11 @@ public struct ListScreenView: View {
   }
 }
 
-// MARK: - AddItemView
+// MARK: - ListScreenAddItemView
 
-struct AddItemView: View {
+struct ListScreenAddItemView: View {
   @ObserveInjection var inject
-  @Bindable var store: StoreOf<AddItem>
+  @Bindable var store: StoreOf<ListScreenAddItem>
 
   var body: some View {
     Form {
@@ -86,11 +86,11 @@ struct AddItemView: View {
   }
 }
 
-// MARK: - EditItemView
+// MARK: - ListScreenEditItemView
 
-struct EditItemView: View {
+struct ListScreenEditItemView: View {
   @ObserveInjection var inject
-  @Bindable var store: StoreOf<EditItem>
+  @Bindable var store: StoreOf<ListScreenEditItem>
 
   var body: some View {
     Form {
