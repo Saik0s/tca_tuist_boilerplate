@@ -1,22 +1,22 @@
 import XCTest
 import ComposableArchitecture
-@testable import {{ name }}
-import {{ name }}Interface
+@testable import ListScreen
+import ListScreenInterface
 
-public enum {{ name }}Testing {
+public enum ListScreenTesting {
     public static func mockItem(id: UUID = UUID()) -> Item {
         Item(id: id, title: "Mock Item", description: "Mock Description", createdAt: Date())
     }
 
-    public static let mockClient = {{ name }}Client(
+    public static let mockClient = ListScreenClient(
         fetchItems: { [mockItem()] },
         saveItems: { _ in }
     )
 }
 
-extension {{ name }}Client {
+extension ListScreenClient {
     public static let test = Self(
-        fetchItems: unimplemented("{{ name }}Client.fetchItems"),
-        saveItems: unimplemented("{{ name }}Client.saveItems")
+        fetchItems: unimplemented("ListScreenClient.fetchItems"),
+        saveItems: unimplemented("ListScreenClient.saveItems")
     )
 }

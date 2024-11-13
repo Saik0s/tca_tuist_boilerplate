@@ -31,6 +31,7 @@ graph TD
 1. Install dependencies:
 ```bash
 mise install
+tuist install
 ```
 
 2. Generate Xcode project:

@@ -1,13 +1,15 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "TCATuistBoilerplate",
     targets: [
         .target(
             name: "TCATuistBoilerplate",
-            destinations: .iOS,
+            destinations: env.destinations,
             product: .app,
-            bundleId: "io.tuist.TCATuistBoilerplate",
+            bundleId: "\(env.organizationName).TCATuistBoilerplate",
+            deploymentTargets: env.deploymentTargets,
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [
@@ -16,17 +18,20 @@ let project = Project(
                     ],
                 ]
             ),
-            sources: ["TCATuistBoilerplate/Sources/**"],
-            resources: ["TCATuistBoilerplate/Resources/**"],
-            dependencies: []
+            sources: ["Sources/**"],
+            resources: ["Resources/**"],
+            dependencies: [
+                .project(target: "ListScreen", path: "../Features/ListScreen")
+            ]
         ),
         .target(
             name: "TCATuistBoilerplateTests",
-            destinations: .iOS,
+            destinations: env.destinations,
             product: .unitTests,
-            bundleId: "io.tuist.TCATuistBoilerplateTests",
+            bundleId: "\(env.organizationName).TCATuistBoilerplateTests",
+            deploymentTargets: env.deploymentTargets,
             infoPlist: .default,
-            sources: ["TCATuistBoilerplate/Tests/**"],
+            sources: ["Tests/**"],
             resources: [],
             dependencies: [.target(name: "TCATuistBoilerplate")]
         ),

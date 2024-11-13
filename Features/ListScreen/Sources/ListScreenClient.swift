@@ -1,13 +1,13 @@
 import ComposableArchitecture
-import {{ name }}Interface
+import ListScreenInterface
 
 @DependencyClient
-public struct {{ name }}Client {
+public struct ListScreenClient {
     public var fetchItems: () async throws -> [Item]
     public var saveItems: ([Item]) async throws -> Void
 }
 
-extension {{ name }}Client: DependencyKey {
+extension ListScreenClient: DependencyKey {
     public static let liveValue = Self(
         fetchItems: {
             // Implement actual API call here
@@ -20,8 +20,8 @@ extension {{ name }}Client: DependencyKey {
 }
 
 extension DependencyValues {
-    public var client: {{ name }}Client {
-        get { self[{{ name }}Client.self] }
-        set { self[{{ name }}Client.self] = newValue }
+    public var client: ListScreenClient {
+        get { self[ListScreenClient.self] }
+        set { self[ListScreenClient.self] = newValue }
     }
 }

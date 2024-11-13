@@ -2,51 +2,51 @@ import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project(
-    name: "{{ name }}",
+    name: "ListScreen",
     targets: [
         .target(
-            name: "{{ name }}",
+            name: "ListScreen",
             destinations: env.destinations,
             product: .framework,
-            bundleId: "\(env.organizationName).{{ name }}",
+            bundleId: "\(env.organizationName).ListScreen",
             deploymentTargets: env.deploymentTargets,
             sources: ["Sources/**"],
             dependencies: [
                 .external(name: "ComposableArchitecture"),
                 .external(name: "Inject"),
-                .target(name: "{{ name }}Interface"),
+                .target(name: "ListScreenInterface"),
             ]
         ),
         .target(
-            name: "{{ name }}Interface",
+            name: "ListScreenInterface",
             destinations: env.destinations,
             product: .framework,
-            bundleId: "\(env.organizationName).{{ name }}Interface",
+            bundleId: "\(env.organizationName).ListScreenInterface",
             deploymentTargets: env.deploymentTargets,
             sources: ["Interface/Sources/**"]
         ),
         .target(
-            name: "{{ name }}Testing",
+            name: "ListScreenTesting",
             destinations: env.destinations,
             product: .framework,
-            bundleId: "\(env.organizationName).{{ name }}Testing",
+            bundleId: "\(env.organizationName).ListScreenTesting",
             deploymentTargets: env.deploymentTargets,
             sources: ["Testing/Sources/**"],
             dependencies: [
-                .target(name: "{{ name }}"),
-                .target(name: "{{ name }}Interface"),
+                .target(name: "ListScreen"),
+                .target(name: "ListScreenInterface"),
             ]
         ),
         .target(
-            name: "{{ name }}Tests",
+            name: "ListScreenTests",
             destinations: env.destinations,
             product: .unitTests,
-            bundleId: "\(env.organizationName).{{ name }}Tests",
+            bundleId: "\(env.organizationName).ListScreenTests",
             deploymentTargets: env.deploymentTargets,
             sources: ["Tests/**"],
             dependencies: [
-                .target(name: "{{ name }}"),
-                .target(name: "{{ name }}Testing"),
+                .target(name: "ListScreen"),
+                .target(name: "ListScreenTesting"),
                 .external(name: "SnapshotTesting"),
             ]
         ),

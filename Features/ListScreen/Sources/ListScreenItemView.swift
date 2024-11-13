@@ -1,8 +1,8 @@
 import SwiftUI
-import {{ name }}Interface
+import ListScreenInterface
 import Inject
 
-struct {{ name }}ItemView: View {
+struct ListScreenItemView: View {
     @ObserveInjection var inject
     let item: Item
 

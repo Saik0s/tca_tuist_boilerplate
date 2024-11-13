@@ -1,13 +1,13 @@
 import SwiftUI
 import ComposableArchitecture
-import {{ name }}Interface
+import ListScreenInterface
 import Inject
 
-public struct {{ name }}View: View {
+public struct ListScreenView: View {
     @ObserveInjection var inject
-    @Bindable var store: StoreOf<{{ name }}Feature>
+    @Bindable var store: StoreOf<ListScreenFeature>
 
-    public init(store: StoreOf<{{ name }}Feature>) {
+    public init(store: StoreOf<ListScreenFeature>) {
         self.store = store
     }
 
@@ -15,13 +15,13 @@ public struct {{ name }}View: View {
         NavigationStack {
             List {
                 ForEach(store.items) { item in
-                    {{ name }}ItemView(item: item)
+                    ListScreenItemView(item: item)
                         .onTapGesture { store.send(.itemTapped(item.id)) }
                 }
                 .onDelete { store.send(.deleteItem($0)) }
                 .onMove { store.send(.moveItem(from: $0, to: $1)) }
             }
-            .navigationTitle("{{ name }}")
+            .navigationTitle("ListScreen")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Add") { store.send(.addButtonTapped) }

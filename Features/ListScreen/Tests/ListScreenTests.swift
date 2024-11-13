@@ -1,14 +1,14 @@
 import XCTest
 import ComposableArchitecture
 import SnapshotTesting
-@testable import {{ name }}
-import {{ name }}Testing
+@testable import ListScreen
+import ListScreenTesting
 
 @MainActor
-final class {{ name }}Tests: XCTestCase {
+final class ListScreenTests: XCTestCase {
     func testInitialState() async {
-        let store = TestStore(initialState: {{ name }}Feature.State()) {
-            {{ name }}Feature()
+        let store = TestStore(initialState: ListScreenFeature.State()) {
+            ListScreenFeature()
         } withDependencies: {
             $0.client = .test
         }
@@ -20,12 +20,12 @@ final class {{ name }}Tests: XCTestCase {
 
     func testLoadItems_Success() async {
         let mockItems = [
-            {{ name }}Testing.mockItem(id: UUID(0)),
-            {{ name }}Testing.mockItem(id: UUID(1))
+            ListScreenTesting.mockItem(id: UUID(0)),
+            ListScreenTesting.mockItem(id: UUID(1))
         ]
 
-        let store = TestStore(initialState: {{ name }}Feature.State()) {
-            {{ name }}Feature()
+        let store = TestStore(initialState: ListScreenFeature.State()) {
+            ListScreenFeature()
         } withDependencies: {
             $0.client.fetchItems = { mockItems }
         }
@@ -41,8 +41,8 @@ final class {{ name }}Tests: XCTestCase {
     }
 
     func testLoadItems_Failure() async {
-        let store = TestStore(initialState: {{ name }}Feature.State()) {
-            {{ name }}Feature()
+        let store = TestStore(initialState: ListScreenFeature.State()) {
+            ListScreenFeature()
         } withDependencies: {
             $0.client.fetchItems = {
                 struct FetchError: Error {}
@@ -63,8 +63,8 @@ final class {{ name }}Tests: XCTestCase {
     }
 
     func testAddItem() async {
-        let store = TestStore(initialState: {{ name }}Feature.State()) {
-            {{ name }}Feature()
+        let store = TestStore(initialState: ListScreenFeature.State()) {
+            ListScreenFeature()
         } withDependencies: {
             $0.client = .test
             $0.client.saveItems = { _ in }
@@ -82,11 +82,11 @@ final class {{ name }}Tests: XCTestCase {
     }
 
     func testEditItem() async {
-        let item = {{ name }}Testing.mockItem()
+        let item = ListScreenTesting.mockItem()
         let store = TestStore(
-            initialState: {{ name }}Feature.State(items: [item])
+            initialState: ListScreenFeature.State(items: [item])
         ) {
-            {{ name }}Feature()
+            ListScreenFeature()
         } withDependencies: {
             $0.client = .test
             $0.client.saveItems = { _ in }
@@ -110,11 +110,11 @@ final class {{ name }}Tests: XCTestCase {
     }
 
     func testDeleteItem() async {
-        let item = {{ name }}Testing.mockItem()
+        let item = ListScreenTesting.mockItem()
         let store = TestStore(
-            initialState: {{ name }}Feature.State(items: [item])
+            initialState: ListScreenFeature.State(items: [item])
         ) {
-            {{ name }}Feature()
+            ListScreenFeature()
         } withDependencies: {
             $0.client = .test
             $0.client.saveItems = { _ in }
@@ -150,9 +150,9 @@ final class {{ name }}Tests: XCTestCase {
         ]
 
         let store = TestStore(
-            initialState: {{ name }}Feature.State(items: items)
+            initialState: ListScreenFeature.State(items: items)
         ) {
-            {{ name }}Feature()
+            ListScreenFeature()
         } withDependencies: {
             $0.client = .test
         }
@@ -170,7 +170,7 @@ final class {{ name }}Tests: XCTestCase {
 }
 
 // MARK: - Snapshot Tests
-extension {{ name }}Tests {
+extension ListScreenTests {
     func testViewSnapshots() {
         let items = [
             Item(
@@ -188,14 +188,14 @@ extension {{ name }}Tests {
         ]
 
         let store = Store(
-            initialState: {{ name }}Feature.State(items: items)
+            initialState: ListScreenFeature.State(items: items)
         ) {
-            {{ name }}Feature()
+            ListScreenFeature()
         } withDependencies: {
             $0.client = .test
         }
 
-        let view = {{ name }}View(store: store)
+        let view = ListScreenView(store: store)
 
         assertSnapshot(
             matching: view,
@@ -204,12 +204,12 @@ extension {{ name }}Tests {
 
         // Test empty state
         let emptyStore = Store(
-            initialState: {{ name }}Feature.State()
+            initialState: ListScreenFeature.State()
         ) {
-            {{ name }}Feature()
+            ListScreenFeature()
         }
 
-        let emptyView = {{ name }}View(store: emptyStore)
+        let emptyView = ListScreenView(store: emptyStore)
         assertSnapshot(
             matching: emptyView,
             as: .image(layout: .device(config: .iPhone13Pro)),
@@ -218,12 +218,12 @@ extension {{ name }}Tests {
 
         // Test loading state
         let loadingStore = Store(
-            initialState: {{ name }}Feature.State(isLoading: true)
+            initialState: ListScreenFeature.State(isLoading: true)
         ) {
-            {{ name }}Feature()
+            ListScreenFeature()
         }
 
-        let loadingView = {{ name }}View(store: loadingStore)
+        let loadingView = ListScreenView(store: loadingStore)
         assertSnapshot(
             matching: loadingView,
             as: .image(layout: .device(config: .iPhone13Pro)),
