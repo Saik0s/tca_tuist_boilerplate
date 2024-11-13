@@ -2,11 +2,15 @@ import SwiftUI
 import {{ name }}Interface
 import Inject
 
-struct {{ name }}ItemView: View {
+public struct {{ name }}ItemView: View {
     @ObserveInjection var inject
     let item: Item
 
-    var body: some View {
+    public init(item: Item) {
+        self.item = item
+    }
+
+    public var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(item.title)
                 .font(.headline)

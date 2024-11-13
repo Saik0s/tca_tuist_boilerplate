@@ -5,5 +5,4 @@
 import Foundation
 import XCTest
 
-final class TCATuistBoilerplateTests: XCTestCase {
-}
+final class TCATuistBoilerplateTests: XCTestCase {}

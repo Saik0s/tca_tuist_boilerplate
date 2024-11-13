@@ -1,27 +1,13 @@
-import ComposableArchitecture
-import {{ name }}Interface
+import Dependencies
+import DependenciesMacros
+import IdentifiedCollections
 
 @DependencyClient
 public struct {{ name }}Client {
-    public var fetchItems: () async throws -> [Item]
-    public var saveItems: ([Item]) async throws -> Void
+  public var fetchItems: () async throws -> IdentifiedArrayOf<{{ name }}Item>
+  public var saveItems: ([{{ name }}Item]) async throws -> Void
 }
 
-extension {{ name }}Client: DependencyKey {
-    public static let liveValue = Self(
-        fetchItems: {
-            // Implement actual API call here
-            []
-        },
-        saveItems: { _ in
-            // Implement actual API call here
-        }
-    )
-}
-
-extension DependencyValues {
-    public var {{ name.charAt(0).toLowerCase() + name.slice(1) }}Client: {{ name }}Client {
-        get { self[{{ name }}Client.self] }
-        set { self[{{ name }}Client.self] = newValue }
-    }
+extension {{ name }}Client: TestDependencyKey {
+  public static let testValue = Self()
 }

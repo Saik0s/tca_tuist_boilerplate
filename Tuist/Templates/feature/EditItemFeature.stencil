@@ -1,24 +1,20 @@
-//
-// ListScreenAddItemFeature.swift
-//
-
 import ComposableArchitecture
-import ListScreenInterface
+import {{ name }}Interface
 
 @Reducer
-public struct ListScreenAddItem {
+public struct {{ name }}EditItem {
   @ObservableState
   public struct State: Equatable {
-    public var item: ListScreenItem
+    public var item: {{ name }}Item
 
-    public init(item: ListScreenItem) {
+    public init(item: {{ name }}Item) {
       self.item = item
     }
   }
 
   public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
-    case saveButtonTapped(ListScreenItem)
+    case saveButtonTapped({{ name }}Item)
     case cancelButtonTapped
   }
 
@@ -30,10 +26,9 @@ public struct ListScreenAddItem {
     Reduce { _, action in
       switch action {
       case .binding:
-        .none
-
+        return .none
       case .cancelButtonTapped, .saveButtonTapped:
-        .none
+        return .none
       }
     }
   }

@@ -13,7 +13,7 @@ let project = Project(
         .target(
             name: "{{ name }}",
             destinations: env.destinations,
-            product: .framework,
+            product: .staticFramework,
             bundleId: "\(env.organizationName).{{ name }}",
             deploymentTargets: env.deploymentTargets,
             sources: ["Sources/**"],
@@ -21,25 +21,30 @@ let project = Project(
                 .external(name: "ComposableArchitecture"),
                 .external(name: "Inject"),
                 .target(name: "{{ name }}Interface"),
+                .target(name: "{{ name }}Testing"),
             ]
         ),
         .target(
             name: "{{ name }}Interface",
             destinations: env.destinations,
-            product: .framework,
+            product: .staticFramework,
             bundleId: "\(env.organizationName).{{ name }}Interface",
             deploymentTargets: env.deploymentTargets,
-            sources: ["Interface/Sources/**"]
+            sources: ["Interface/Sources/**"],
+            dependencies: [
+                .external(name: "Dependencies"),
+                .external(name: "DependenciesMacros"),
+                .external(name: "IdentifiedCollections"),
+            ]
         ),
         .target(
             name: "{{ name }}Testing",
             destinations: env.destinations,
-            product: .framework,
+            product: .staticFramework,
             bundleId: "\(env.organizationName).{{ name }}Testing",
             deploymentTargets: env.deploymentTargets,
             sources: ["Testing/Sources/**"],
             dependencies: [
-                .target(name: "{{ name }}"),
                 .target(name: "{{ name }}Interface"),
             ]
         ),

@@ -1,25 +1,19 @@
-//
-// LiveListScreenClient.swift
-//
-
 import ComposableArchitecture
 import Foundation
-import ListScreenInterface
+import {{ name }}Interface
 
-// MARK: - ListScreenClient + DependencyKey
-
-extension ListScreenClient: @retroactive DependencyKey {
+extension {{ name }}Client: @retroactive DependencyKey {
   public static let liveValue = Self(
     fetchItems: {
       try await Task.sleep(for: .seconds(1))
       return [
-        ListScreenItem(
+        {{ name }}Item(
           id: UUID(),
           title: "Important Task",
           description: "Must be completed ASAP",
           createdAt: Date()
         ),
-        ListScreenItem(
+        {{ name }}Item(
           id: UUID(),
           title: "Secondary Task",
           description: "Can wait until next week",
@@ -34,9 +28,9 @@ extension ListScreenClient: @retroactive DependencyKey {
   )
 }
 
-public extension DependencyValues {
-  var listScreenClient: ListScreenClient {
-    get { self[ListScreenClient.self] }
-    set { self[ListScreenClient.self] = newValue }
+extension DependencyValues {
+  public var {{ name.charAt(0).toLowerCase() + name.slice(1) }}Client: {{ name }}Client {
+    get { self[{{ name }}Client.self] }
+    set { self[{{ name }}Client.self] = newValue }
   }
 }

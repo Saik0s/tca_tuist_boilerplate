@@ -74,7 +74,7 @@ public struct {{ name }}Feature {
       case .addButtonTapped:
         let item = {{ name }}Item(
           id: uuid(),
-          title: "New Item",
+          title: "",
           description: "",
           createdAt: date()
         )
@@ -158,62 +158,3 @@ public struct {{ name }}Feature {
   }
 }
 
-@Reducer
-struct AddItem {
-    @ObservableState
-    struct State: Equatable {
-        var item = Item(id: UUID(), title: "", description: "", createdAt: Date())
-    }
-
-    enum Action: Equatable {
-        case setTitle(String)
-        case setDescription(String)
-        case saveButtonTapped(Item)
-        case cancelButtonTapped
-    }
-
-    var body: some ReducerOf<Self> {
-        Reduce { state, action in
-            switch action {
-            case let .setTitle(title):
-                state.item.title = title
-                return .none
-            case let .setDescription(description):
-                state.item.description = description
-                return .none
-            case .saveButtonTapped, .cancelButtonTapped:
-                return .none
-            }
-        }
-    }
-}
-
-@Reducer
-struct EditItem {
-    @ObservableState
-    struct State: Equatable {
-        var item: Item
-    }
-
-    enum Action: Equatable {
-        case setTitle(String)
-        case setDescription(String)
-        case saveButtonTapped(Item)
-        case cancelButtonTapped
-    }
-
-    var body: some ReducerOf<Self> {
-        Reduce { state, action in
-            switch action {
-            case let .setTitle(title):
-                state.item.title = title
-                return .none
-            case let .setDescription(description):
-                state.item.description = description
-                return .none
-            case .saveButtonTapped, .cancelButtonTapped:
-                return .none
-            }
-        }
-    }
-}

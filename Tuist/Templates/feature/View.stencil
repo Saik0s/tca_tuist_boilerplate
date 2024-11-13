@@ -40,14 +40,14 @@ public struct {{ name }}View: View {
             item: $store.scope(state: \.destination?.add, action: \.destination.add)
         ) { addStore in
             NavigationStack {
-                AddItemView(store: addStore)
+                {{ name }}AddItemView(store: addStore)
             }
         }
         .sheet(
             item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
         ) { editStore in
             NavigationStack {
-                EditItemView(store: editStore)
+                {{ name }}EditItemView(store: editStore)
             }
         }
         .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
@@ -56,11 +56,15 @@ public struct {{ name }}View: View {
     }
 }
 
-struct AddItemView: View {
+public struct {{ name }}AddItemView: View {
     @ObserveInjection var inject
-    @Bindable var store: StoreOf<AddItem>
+    @Bindable var store: StoreOf<{{ name }}AddItemFeature>
 
-    var body: some View {
+    public init(store: StoreOf<{{ name }}AddItemFeature>) {
+        self.store = store
+    }
+
+    public var body: some View {
         Form {
             TextField("Title", text: $store.item.title)
             TextField("Description", text: $store.item.description)
@@ -78,11 +82,15 @@ struct AddItemView: View {
     }
 }
 
-struct EditItemView: View {
+public struct {{ name }}EditItemView: View {
     @ObserveInjection var inject
-    @Bindable var store: StoreOf<EditItem>
+    @Bindable var store: StoreOf<{{ name }}EditItemFeature>
 
-    var body: some View {
+    public init(store: StoreOf<{{ name }}EditItemFeature>) {
+        self.store = store
+    }
+
+    public var body: some View {
         Form {
             TextField("Title", text: $store.item.title)
             TextField("Description", text: $store.item.description)

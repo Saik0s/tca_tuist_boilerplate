@@ -73,7 +73,8 @@ public struct ListScreenFeature {
           AlertState(
             title: { TextState("Error") },
             actions: { ButtonState(role: .cancel) { TextState("OK") } },
-            message: { TextState("Failed to load items") })
+            message: { TextState("Failed to load items") }
+          )
         )
         return .none
 
@@ -152,7 +153,7 @@ public struct ListScreenFeature {
         return .none
 
       case .destination(.presented(.add(.cancelButtonTapped))),
-        .destination(.presented(.edit(.cancelButtonTapped))):
+           .destination(.presented(.edit(.cancelButtonTapped))):
         state.destination = nil
         return .none
 

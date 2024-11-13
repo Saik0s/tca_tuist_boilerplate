@@ -25,7 +25,7 @@ let project = Project(
           "UILaunchScreen": [
             "UIColorName": "",
             "UIImageName": "",
-          ]
+          ],
         ]
       ),
       sources: ["Sources/**"],

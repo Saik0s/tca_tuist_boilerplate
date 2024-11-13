@@ -1,3 +1,7 @@
+//
+// ListScreenEditItemFeature.swift
+//
+
 import ComposableArchitecture
 import ListScreenInterface
 
@@ -26,9 +30,10 @@ public struct ListScreenEditItem {
     Reduce { _, action in
       switch action {
       case .binding:
-        return .none
+        .none
+
       case .cancelButtonTapped, .saveButtonTapped:
-        return .none
+        .none
       }
     }
   }
