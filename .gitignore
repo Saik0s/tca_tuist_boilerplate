@@ -68,5 +68,10 @@ Derived/
 
 ### Tuist managed dependencies ###
 Tuist/.build
+.build
 
 buildServer.json
+.aider*
+
+.env
+designs/

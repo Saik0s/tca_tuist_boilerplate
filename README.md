@@ -1,106 +1,115 @@
-# iOS Project Boilerplate with Tuist and TCA
+# iOS Project Template with Tuist + TCA
 
-A ready-to-use template for building iOS apps using:
-- Tuist for project generation and management
-- The Composable Architecture (TCA) for state management
-- SwiftUI for UI development
+Ready-to-use template for iOS apps using Tuist for project management and The Composable Architecture (TCA) for state management.
 
-## What's Inside
+## Setup
 
-This template helps you:
-- Set up a modular iOS project structure
-- Create new features quickly using TCA patterns
-- Keep your codebase organized and maintainable
+1. Install required tools:
+```bash
+# Install mise (manages tool versions)
+curl https://mise.jdx.dev/install.sh | sh
+
+# Install project dependencies
+make bootstrap
+```
+
+2. Generate the Xcode project:
+```bash
+make generate
+```
 
 ## Project Structure
-```mermaid
-graph TD
-    App[App Target]
-    Features[Features]
-    Core[Core]
-    App --> Features
-    App --> Core
-    Features --> Feature1[Feature 1]
-    Features --> Feature2[Feature 2]
-    Core --> Networking
-    Core --> Storage
+
+```
+TCATuistBoilerplate/     # Main app
+├── Sources/             # App source code
+└── Resources/           # Assets, etc.
+
+Features/               # Feature modules
+├── ListScreen/         # Example feature
+│   ├── Sources/        # Implementation
+│   ├── Interface/      # Public API
+│   ├── Testing/        # Test helpers
+│   └── Tests/          # Unit tests
+└── [Other Features]/   # Same structure
+
+Tuist/                 # Project generation
+├── Templates/         # Feature templates
+└── ProjectDescriptionHelpers/  # Shared config
 ```
 
-## Quick Start
+## Feature Template
 
-1. Install dependencies:
+The template generates a complete feature module with:
+
+### Generated Files
+- `Project.swift` - Feature module configuration
+- `Sources/`
+  - `[Feature]Feature.swift` - TCA reducer & logic
+  - `[Feature]View.swift` - Main SwiftUI view
+  - `[Feature]ItemView.swift` - List item view
+  - `[Feature]Client.swift` - API client
+- `Interface/Sources/[Feature]Interface.swift` - Public API
+- `Testing/Sources/[Feature]Testing.swift` - Test helpers
+- `Tests/[Feature]Tests.swift` - Unit tests
+
+### Using the Template
+
+1. Generate feature:
 ```bash
-mise install
-tuist install
+tuist scaffold feature --name YourFeature
 ```
 
-2. Generate Xcode project:
-```bash
-tuist generate
-```
-
-3. Create a new feature:
-```bash
-tuist scaffold feature --name YourFeatureName
-```
-
-## Adding Features
-
-1. Generate a feature module:
-```bash
-tuist scaffold feature --name YourFeatureName
-```
-
-2. Add it to your app in Project.swift:
+2. Add to main app's dependencies in `TCATuistBoilerplate/Project.swift`:
 ```swift
-import ProjectDescription
-
-let project = Project(
-  name: "YourApp",
-  targets: [
-    .target(
-      name: "YourApp",
-      dependencies: [
-        .project(target: "YourFeatureName", path: .relative("Features/YourFeatureName"))
-      ]
-    )
-  ]
-)
+dependencies: [
+  .project(target: "YourFeature", path: "../Features/YourFeature")
+]
 ```
 
-3. Use the feature in your app:
-```swift
-import YourFeatureName
+## Common Tasks
 
-struct ContentView: View {
-  var body: some View {
-    YourFeatureNameView(
-      store: Store(initialState: YourFeatureNameFeature.State()) {
-        YourFeatureNameFeature()
-      }
-    )
-  }
-}
+### Update Dependencies
+
+```bash
+make update
 ```
 
-## Feature Template Structure
+### Run Tests
 
-Each feature follows this structure:
+```bash
+# All tests
+make test
 
-```mermaid
-graph LR
-    Feature[Feature Module]
-    Sources[Sources]
-    Interface[Interface]
-    Tests[Tests]
-    Feature --> Sources
-    Feature --> Interface
-    Feature --> Tests
-    Sources --> Feature.swift
-    Sources --> View.swift
-    Sources --> Client.swift
-    Interface --> Interface.swift
-    Tests --> Tests.swift
+# Just unit tests
+make unit_test
 ```
 
-This organized structure helps keep your code clean and testable.
+### Format Code
+
+```bash
+make format
+```
+
+### Clean Build Files
+
+```bash
+make clean
+```
+
+## Pre-commit Hooks
+
+The project includes pre-commit hooks for code formatting. Install them:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+## Tools & Versions
+
+- Tuist: 4.33.0
+- SwiftLint: 0.54.0
+- SwiftFormat: 0.53.3
+
+All tool versions are managed by mise and defined in `.mise.toml`.
