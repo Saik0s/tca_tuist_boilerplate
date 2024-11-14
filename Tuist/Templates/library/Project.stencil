@@ -19,8 +19,8 @@ let project = Project(
       infoPlist: .default,
       sources: ["Interface/**"],
       dependencies: [
-        .external(name: "Dependencies"),
-        .external(name: "DependenciesMacros")
+        .external(name: "Dependencies", condition: nil),
+        .external(name: "DependenciesMacros", condition: nil)
       ]
     ),
     .target(
@@ -33,7 +33,7 @@ let project = Project(
       sources: ["Sources/**"],
       dependencies: [
         .target(name: "{{ name }}Interface"),
-        .external(name: "ComposableArchitecture")
+        .external(name: "ComposableArchitecture", condition: nil)
       ]
     ),
     .target(
@@ -60,7 +60,8 @@ let project = Project(
         .target(name: "{{ name }}"),
         .target(name: "{{ name }}Interface"),
         .target(name: "{{ name }}Testing"),
-        .external(name: "ComposableArchitecture")
+        .external(name: "ComposableArchitecture", condition: nil),
+        .external(name: "SnapshotTesting", condition: nil)
       ]
     )
   ]

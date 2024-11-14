@@ -1,70 +1,29 @@
 import Foundation
 
-public struct {{ name }}Item: Identifiable, Codable, Equatable {
-  public let id: UUID
-  public var title: String
-  public var details: String
-  public let createdAt: Date
-
-  public init(
-    id: UUID = UUID(),
-    title: String,
-    details: String,
-    createdAt: Date = Date()
-  ) {
-    self.id = id
-    self.title = title
-    self.details = details
-    self.createdAt = createdAt
-  }
-}
-
-public enum {{ name }}Error: LocalizedError {
-  case networkError(Error)
-  case decodingError(Error)
-  case unauthorized
-  case notFound
-  case unknown(Error)
-
-  public var errorDescription: String? {
-    switch self {
-    case .networkError(let error): return "Network error: \(error.localizedDescription)"
-    case .decodingError(let error): return "Decoding error: \(error.localizedDescription)"
-    case .unauthorized: return "Unauthorized"
-    case .notFound: return "Not found"
-    case .unknown(let error): return "Unknown error: \(error.localizedDescription)"
-    }
-  }
-}
-import Foundation
-
 // MARK: - Core Types
 
-public struct TaskID: Hashable, Sendable {
-  public let rawValue: UUID
-  
-  public init(_ rawValue: UUID = UUID()) {
-    self.rawValue = rawValue
-  }
-}
+public typealias TaskID = UUID
 
-public struct TaskInput: Sendable {
-  public let priority: TaskPriority
+public struct TaskInput: Sendable, Equatable {
+  public let id: TaskID
   public let configuration: TaskConfiguration
+  public let priority: TaskPriority
   public let metadata: [String: String]
   
   public init(
-    priority: TaskPriority = .normal,
+    id: TaskID = TaskID(),
     configuration: TaskConfiguration = .init(),
+    priority: TaskPriority = .normal,
     metadata: [String: String] = [:]
   ) {
-    self.priority = priority
+    self.id = id
     self.configuration = configuration
+    self.priority = priority
     self.metadata = metadata
   }
 }
 
-public struct TaskConfiguration: Sendable {
+public struct TaskConfiguration: Sendable, Equatable {
   public let retryCount: Int
   public let timeout: TimeInterval
   public let requiresNetwork: Bool
@@ -80,24 +39,20 @@ public struct TaskConfiguration: Sendable {
   }
 }
 
-// MARK: - States & Events
+// MARK: - Events & States
 
-public enum QueueState: Equatable {
-  case idle
-  case processing(activeCount: Int, pendingCount: Int)
-  case paused(pendingCount: Int)
-  case error(TaskError)
+public enum TaskEvent: Equatable {
+  case started
+  case progress(TaskProgress)
+  case completed(TaskResult)
+  case failed(TaskError)
 }
 
-public enum QueueEvent: Equatable {
-  case started
-  case taskStarted(TaskID)
-  case taskProgress(TaskID, TaskProgress)
-  case taskCompleted(TaskID, TaskResult)
-  case taskFailed(TaskID, TaskError)
+public enum TaskState: Equatable {
+  case idle
+  case running
   case paused
-  case resumed
-  case completed
+  case completed(TaskResult)
   case failed(TaskError)
 }
 
@@ -111,21 +66,33 @@ public struct TaskProgress: Equatable {
     guard totalUnits > 0 else { return 0 }
     return Double(completedUnits) / Double(totalUnits)
   }
+  
+  public init(
+    completedUnits: Int,
+    totalUnits: Int,
+    currentPhase: TaskPhase,
+    estimatedTimeRemaining: TimeInterval?
+  ) {
+    self.completedUnits = completedUnits
+    self.totalUnits = totalUnits
+    self.currentPhase = currentPhase
+    self.estimatedTimeRemaining = estimatedTimeRemaining
+  }
 }
 
-public struct TaskStatus: Equatable {
-  public let id: TaskID
-  public let state: State
-  public let progress: TaskProgress?
-  public let result: TaskResult?
-  public let error: TaskError?
+public struct TaskResult: Equatable {
+  public let processedUnits: Int
+  public let duration: TimeInterval
+  public let metadata: [String: String]
   
-  public enum State: Equatable {
-    case pending
-    case processing
-    case paused
-    case completed
-    case failed
+  public init(
+    processedUnits: Int,
+    duration: TimeInterval,
+    metadata: [String: String] = [:]
+  ) {
+    self.processedUnits = processedUnits
+    self.duration = duration
+    self.metadata = metadata
   }
 }
 
@@ -146,12 +113,6 @@ public enum TaskPhase: Equatable {
   case preparing
   case processing(stage: Int, totalStages: Int)
   case finalizing
-}
-
-public struct TaskResult: Equatable {
-  public let processedUnits: Int
-  public let duration: TimeInterval
-  public let metadata: [String: String]
 }
 
 public enum TaskError: LocalizedError, Equatable {
