@@ -120,7 +120,7 @@ extension TaskProcessorClient: DependencyKey {
             while true {
               if let task = await queue.get(taskId: taskId) {
                 continuation.yield(task.progress)
-                if task.state == .completed || task.state == .cancelled || task.state == .failed {
+                if task.state == .completed || task.state == .cancelled {
                   continuation.finish()
                   break
                 }
