@@ -22,9 +22,10 @@ final class TaskProcessorTests: XCTestCase {
       }
     }
 
+    // Start a timeout task
     let timeoutTask = Task {
-      try await Task.sleep(nanoseconds: 5_000_000_000) // 5 second timeout
-      eventsTask.cancel()
+        try await Task.sleep(for: .seconds(5))
+        eventsTask.cancel()
     }
 
     for _ in 0..<10 {
@@ -35,15 +36,21 @@ final class TaskProcessorTests: XCTestCase {
     await eventsTask.value
     timeoutTask.cancel()
 
-    XCTAssertEqual(receivedEvents.count, 12) // started + 10 progress + completed
+    XCTAssertEqual(receivedEvents.count, 15) // started + stateChanges + 11 progress + completed
     XCTAssertEqual(receivedEvents.first, .started)
 
-    let progressEvents = receivedEvents.dropFirst().dropLast()
-    for (index, event) in progressEvents.enumerated() {
-      if case let .progress(value) = event {
-        let expected = Double(index + 1) / 10.0
+    // Extract only the progress events
+    let progressEvents = receivedEvents.compactMap { event -> Double? in
+        if case let .progress(value) = event { return value } else { return nil }
+    }
+    
+    // Assert the count of progress events
+    XCTAssertEqual(progressEvents.count, 11)
+    
+    // Check each progress value
+    for (index, value) in progressEvents.enumerated() {
+        let expected = Double(index) / 10.0
         XCTAssertEqual(value, expected, accuracy: 0.001)
-      }
     }
 
     if case let .completed(result) = receivedEvents.last {

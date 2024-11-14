@@ -22,21 +22,21 @@ extension TaskProcessorClient: DependencyKey {
       return task
     }
 
-    func update(taskId: String, state: TaskState) async {
+    func update(taskId: String, state: TaskState) {
       if var task = tasks[taskId] {
         task.state = state
         tasks[taskId] = task
       }
     }
 
-    func update(taskId: String, progress: Double) async {
+    func update(taskId: String, progress: Double) {
       if var task = tasks[taskId] {
         task.progress = progress
         tasks[taskId] = task
       }
     }
 
-    func update(taskId: String, task: Task<Void, Error>) async {
+    func update(taskId: String, task: Task<Void, Error>) {
       tasks[taskId]?.task = task
     }
 
@@ -66,7 +66,7 @@ extension TaskProcessorClient: DependencyKey {
         AsyncStream { continuation in
           Task {
             let queuedTask = await queue.add(taskId: input.id)
-            await queue.update(taskId: input.id, state: .running)
+            queue.update(taskId: input.id, state: .running)
 
             continuation.yield(.started)
             continuation.yield(.stateChanged(.running))
@@ -75,10 +75,15 @@ extension TaskProcessorClient: DependencyKey {
               var progress: Double = 0.0
               for i in 0...10 {
                 do {
+                  // Check if the task is paused
+                  while (await queue.getState(input.id) == .paused) {
+                      try await clock.sleep(for: .milliseconds(100))
+                  }
+
                   try await clock.sleep(for: .milliseconds(500))
                   if Task.isCancelled { throw CancellationError() }
                   progress = Double(i) / 10.0
-                  await queue.update(taskId: input.id, progress: progress)
+                  queue.update(taskId: input.id, progress: progress)
                   continuation.yield(.progress(progress))
                 } catch {
                   if error is CancellationError {
@@ -90,7 +95,7 @@ extension TaskProcessorClient: DependencyKey {
                 }
               }
 
-              await queue.update(taskId: input.id, state: .completed)
+              queue.update(taskId: input.id, state: .completed)
               continuation.yield(.stateChanged(.completed))
               continuation.yield(.completed(ProcessorTaskResult(
                 output: "Task \(input.id) completed",
@@ -106,13 +111,13 @@ extension TaskProcessorClient: DependencyKey {
 
       pauseTask: { taskId in
         if let task = try await queue.get(taskId: taskId) {
-          await queue.update(taskId: taskId, state: .paused)
+          queue.update(taskId: taskId, state: .paused)
           task.task?.cancel()
         }
       },
 
       resumeTask: { taskId in
-        await queue.update(taskId: taskId, state: .running)
+        queue.update(taskId: taskId, state: .running)
       },
 
       cancelTask: { taskId in
