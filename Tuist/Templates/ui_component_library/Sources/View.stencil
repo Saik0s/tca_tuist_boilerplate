@@ -1,0 +1,32 @@
+//
+// {{ name }}View.swift
+//
+
+import ComposableArchitecture
+import SwiftUI
+
+public struct {{ name }}View: View {
+  let store: StoreOf<{{ name }}>
+
+  public init(store: StoreOf<{{ name }}>) {
+    self.store = store
+  }
+
+  public var body: some View {
+    WithViewStore(store, observe: { $0 }) { _ in
+      VStack {
+        Text("{{ name }} View")
+      }
+    }
+  }
+}
+
+#Preview {
+  {{ name }}View(
+    store: Store(
+      initialState: {{ name }}.State()
+    ) {
+      {{ name }}()
+    }
+  )
+}

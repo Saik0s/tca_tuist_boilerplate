@@ -1,0 +1,23 @@
+//
+// {{ name }}SnapshotTests.swift
+//
+
+@testable import {{ name }}
+import ComposableArchitecture
+import SnapshotTesting
+import SwiftUI
+import XCTest
+
+final class {{ name }}SnapshotTests: XCTestCase {
+  func testDefaultState() {
+    let view = {{ name }}View(
+      store: Store(initialState: {{ name }}.State()) {}
+    )
+
+    assertSnapshot(
+      of: view,
+      as: .image(layout: .device(config: .iPhone13)),
+      named: "default"
+    )
+  }
+}

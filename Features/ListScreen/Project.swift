@@ -27,6 +27,7 @@ let project = Project(
         .target(name: "ListScreenInterface"),
         .target(name: "ListScreenTesting"),
         .project(target: "TaskProcessor", path: "../../Libraries/TaskProcessor"),
+        .project(target: "Component", path: "../../Libraries/Component"),
       ]
     ),
     .target(

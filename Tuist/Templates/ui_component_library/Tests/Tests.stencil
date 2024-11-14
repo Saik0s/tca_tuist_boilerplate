@@ -1,0 +1,18 @@
+//
+// {{ name }}Tests.swift
+//
+
+@testable import {{ name }}
+import ComposableArchitecture
+import XCTest
+
+final class {{ name }}Tests: XCTestCase {
+  @MainActor
+  func testInitialState() async {
+    let store = TestStore(initialState: {{ name }}.State()) {
+      {{ name }}()
+    }
+
+    await store.send(.onAppear)
+  }
+}
