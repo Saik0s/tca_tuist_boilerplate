@@ -79,7 +79,7 @@ extension TaskProcessorClient: DependencyKey {
 
             let task = Task {
               var progress = 0.0
-              for i in 0 ... 10 {
+              for i in 0 ..< 11 {
                 do {
                   // Check if the task is paused
                   while await queue.getState(input.id) == .paused {
