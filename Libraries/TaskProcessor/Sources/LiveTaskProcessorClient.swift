@@ -65,17 +65,20 @@ extension TaskProcessorClient: DependencyKey {
             await queue.update(taskId: input.id, state: .running)
 
             continuation.yield(.started)
+            continuation.yield(.stateChanged(.running))
 
             let task = Task {
               var progress: Double = 0
               while progress <= 0.9 {
                 do {
                   try await clock.sleep(for: .milliseconds(500))
+                  if Task.isCancelled { throw CancellationError() }
                   progress = min(1.0, progress + 0.1)
                   await queue.update(taskId: input.id, progress: progress)
                   continuation.yield(.progress(progress))
                 } catch {
                   if error is CancellationError {
+                    continuation.yield(.stateChanged(.cancelled))
                     continuation.finish()
                     return
                   }
@@ -84,6 +87,7 @@ extension TaskProcessorClient: DependencyKey {
               }
 
               await queue.update(taskId: input.id, state: .completed)
+              continuation.yield(.stateChanged(.completed))
               continuation.yield(.completed(ProcessorTaskResult(
                 output: "Task \(input.id) completed",
                 duration: 5.0
@@ -120,7 +124,7 @@ extension TaskProcessorClient: DependencyKey {
             while true {
               if let task = await queue.get(taskId: taskId) {
                 continuation.yield(task.progress)
-                if task.state == .completed || task.state == .cancelled {
+                if task.state == .completed || task.state == .cancelled || task.state == .paused {
                   continuation.finish()
                   break
                 }
@@ -140,6 +144,8 @@ extension TaskProcessorClient: DependencyKey {
                 if case .completed = state {
                   break
                 } else if case .cancelled = state {
+                  break
+                } else if case .paused = state {
                   break
                 }
               }
