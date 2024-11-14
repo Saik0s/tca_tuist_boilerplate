@@ -238,3 +238,41 @@ public extension DependencyValues {
     set { self[{{ name }}Client.self] = newValue }
   }
 }
+import Dependencies
+import DependenciesMacros
+import Foundation
+
+/// Client interface for managing long-running task queues with real-time updates
+@DependencyClient
+public struct {{ name }}Client {
+  // MARK: - Task Management
+  
+  /// Starts a new task and provides real-time updates
+  public var startTask: @Sendable (TaskInput) async -> AsyncStream<TaskEvent>
+  
+  /// Pauses an active task
+  public var pauseTask: @Sendable (TaskID) async throws -> Void
+  
+  /// Resumes a paused task
+  public var resumeTask: @Sendable (TaskID) async throws -> Void
+  
+  /// Cancels a specific task
+  public var cancelTask: @Sendable (TaskID) async throws -> Void
+  
+  // MARK: - Observation
+  
+  /// Observes detailed progress for a specific task
+  public var observeTaskProgress: @Sendable (TaskID) -> AsyncStream<TaskProgress>
+  
+  /// Observes state changes for a specific task
+  public var observeTaskState: @Sendable (TaskID) -> AsyncStream<TaskState>
+}
+
+// MARK: - DependencyValues
+
+public extension DependencyValues {
+  var {{ name | lowercase }}Client: {{ name }}Client {
+    get { self[{{ name }}Client.self] }
+    set { self[{{ name }}Client.self] = newValue }
+  }
+}
