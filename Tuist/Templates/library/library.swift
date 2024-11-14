@@ -4,8 +4,12 @@ let nameAttribute: Template.Attribute = .required("name")
 
 let template = Template(
   description: """
-    Creates a library module with task queue processing capabilities.
-    Includes real-time progress tracking, cancellation, and pause/resume functionality.
+    Creates a library module for handling long-running background tasks with:
+    - Real-time progress tracking
+    - Task queue management 
+    - Cancellation support
+    - Pause/Resume functionality
+    - Proper dependency management
     """,
   attributes: [
     nameAttribute,
@@ -30,13 +34,6 @@ let template = Template(
       path: "Tests/\(nameAttribute)Tests.swift",
       templatePath: "tests.stencil",
       condition: .attributeMatch("include_tests", true)
-    ),
-    
-    // Optional persistence support
-    .file(
-      path: "Sources/\(nameAttribute)Storage.swift", 
-      templatePath: "storage.stencil",
-      condition: .attributeMatch("include_persistence", true)
     )
   ]
 )

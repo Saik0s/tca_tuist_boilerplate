@@ -1,181 +1,142 @@
 import ComposableArchitecture
 import Foundation
 
-/// Main reducer for the {{ name }} feature
-/// Demonstrates handling of long-running background tasks with:
-/// - Real-time progress updates
-/// - Pause/Resume functionality
-/// - Proper cancellation
-/// - State persistence
 @Reducer
 public struct {{ name }}Feature {
   public struct State: Equatable {
-    // MARK: - Process State
-    public var processState: ProcessState
-    public var currentProgress: ProgressUpdate?
-
-    // MARK: - Configuration
-    public var configuration: ProcessConfiguration
-
-    // MARK: - UI State
+    public var taskState: TaskState
+    public var currentProgress: TaskProgress?
+    public var configuration: TaskConfiguration
     @Presents public var alert: AlertState<Action.Alert>?
-
+    
     public init(
-      processState: ProcessState = .idle,
-      currentProgress: ProgressUpdate? = nil,
-      configuration: ProcessConfiguration = .init()
+      taskState: TaskState = .idle,
+      currentProgress: TaskProgress? = nil,
+      configuration: TaskConfiguration = .init()
     ) {
-      self.processState = processState
+      self.taskState = taskState
       self.currentProgress = currentProgress
       self.configuration = configuration
     }
   }
 
   public enum Action {
-    // MARK: - User Actions
+    // User Actions
     case startButtonTapped
     case pauseButtonTapped
     case resumeButtonTapped
     case cancelButtonTapped
-    case configurationUpdated(ProcessConfiguration)
-
-    // MARK: - Internal Actions
-    case processEvent(ProcessEvent)
-    case processStateUpdated(ProcessState)
-    case progressUpdated(ProgressUpdate)
-
-    // MARK: - Alert Actions
+    case configurationUpdated(TaskConfiguration)
+    
+    // Internal Actions
+    case taskEvent(TaskEvent)
+    case taskProgress(TaskProgress)
+    case taskStateChanged(TaskState)
+    
+    // Alert Actions
     case alert(PresentationAction<Alert>)
-
+    
     public enum Alert: Equatable {
       case confirmCancel
-      case confirmStart
     }
   }
 
   @Dependency(\.{{ name | lowercase }}Client) var client
-
+  
   private enum CancelID {
-    case process
-    case processStateObservation
+    case task
     case progressObservation
+    case stateObservation
   }
 
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
       case .startButtonTapped:
-        guard case .idle = state.processState else { return .none }
-
-        let input = ProcessInput(configuration: state.configuration)
-
+        guard case .idle = state.taskState else { return .none }
+        
+        let input = TaskInput(configuration: state.configuration)
+        
         return .merge(
-          // Start the main process
           .run { send in
-            for await event in await client.startProcess(input) {
-              await send(.processEvent(event))
+            for await event in await client.startTask(input) {
+              await send(.taskEvent(event))
             }
           }
-          .cancellable(id: CancelID.process),
-
-          // Observe process state
-          .run { send in
-            for await processState in await client.observeProcessState() {
-              await send(.processStateUpdated(processState))
+          .cancellable(id: CancelID.task),
+          
+          .run { [id = input.id] send in
+            for await progress in await client.observeTaskProgress(id) {
+              await send(.taskProgress(progress))
             }
           }
-          .cancellable(id: CancelID.processStateObservation),
-
-          // Observe detailed progress
-          .run { send in
-            for await progress in await client.observeProgress() {
-              await send(.progressUpdated(progress))
+          .cancellable(id: CancelID.progressObservation),
+          
+          .run { [id = input.id] send in
+            for await taskState in await client.observeTaskState(id) {
+              await send(.taskStateChanged(taskState))
             }
           }
-          .cancellable(id: CancelID.progressObservation)
+          .cancellable(id: CancelID.stateObservation)
         )
 
       case .pauseButtonTapped:
-        guard case .running = state.processState else { return .none }
-
-        return .run { _ in
-          try await client.pauseProcess()
-        }
+        guard case .running = state.taskState else { return .none }
+        return .run { _ in try await client.pauseTask(input.id) }
 
       case .resumeButtonTapped:
-        guard case .paused = state.processState else { return .none }
-
-        return .run { _ in
-          try await client.resumeProcess()
-        }
+        guard case .paused = state.taskState else { return .none }
+        return .run { _ in try await client.resumeTask(input.id) }
 
       case .cancelButtonTapped:
         state.alert = AlertState {
-          TextState("Are you sure you want to cancel the current process?")
+          TextState("Are you sure you want to cancel the current task?")
         } actions: {
           ButtonState(role: .destructive, action: .send(.confirmCancel)) {
-            TextState("Cancel Process")
+            TextState("Cancel Task")
           }
           ButtonState(role: .cancel) {
-            TextState("Continue Process")
+            TextState("Continue")
           }
         }
-        return .none
-
-      case let .configurationUpdated(configuration):
-        state.configuration = configuration
-        return .none
-
-      case let .processEvent(event):
-        switch event {
-        case .started:
-          state.processState = .running(state.currentProgress ?? .init(
-            completedItems: 0,
-            totalItems: 100,
-            currentPhase: .preparing,
-            estimatedTimeRemaining: nil
-          ))
-        case let .progress(progress):
-          state.currentProgress = progress
-          if case .running = state.processState {
-            state.processState = .running(progress)
-          }
-        case .paused:
-          if let progress = state.currentProgress {
-            state.processState = .paused(progress)
-          }
-        case .resumed:
-          if let progress = state.currentProgress {
-            state.processState = .running(progress)
-          }
-        case let .completed(result):
-          state.processState = .completed(result)
-          state.currentProgress = nil
-        case let .failed(error):
-          state.processState = .failed(error)
-          state.currentProgress = nil
-        }
-        return .none
-
-      case let .processStateUpdated(processState):
-        state.processState = processState
-        return .none
-
-      case let .progressUpdated(progress):
-        state.currentProgress = progress
         return .none
 
       case .alert(.presented(.confirmCancel)):
         state.alert = nil
         return .merge(
-          .cancel(id: CancelID.process),
-          .cancel(id: CancelID.processStateObservation),
+          .cancel(id: CancelID.task),
           .cancel(id: CancelID.progressObservation),
-          .run { _ in try await client.cancelProcess() }
+          .cancel(id: CancelID.stateObservation),
+          .run { _ in try await client.cancelTask(input.id) }
         )
 
       case .alert(.dismiss):
         state.alert = nil
+        return .none
+
+      case let .taskEvent(event):
+        switch event {
+        case .started:
+          state.taskState = .running
+        case .completed(let result):
+          state.taskState = .completed(result)
+          state.currentProgress = nil
+        case .failed(let error):
+          state.taskState = .failed(error)
+          state.currentProgress = nil
+        }
+        return .none
+
+      case let .taskProgress(progress):
+        state.currentProgress = progress
+        return .none
+
+      case let .taskStateChanged(newState):
+        state.taskState = newState
+        return .none
+
+      case let .configurationUpdated(configuration):
+        state.configuration = configuration
         return .none
       }
     }
