@@ -1,0 +1,12 @@
+//
+// {{ name }}Tests.swift
+//
+
+@testable import {{ name }}
+import XCTest
+
+final class {{ name }}Tests: XCTestCase {
+  func testExample() throws {
+    XCTAssertTrue(true)
+  }
+}

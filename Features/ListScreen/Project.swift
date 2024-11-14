@@ -28,6 +28,7 @@ let project = Project(
         .target(name: "ListScreenTesting"),
         .project(target: "TaskProcessor", path: "../../Libraries/TaskProcessor"),
         .project(target: "Component", path: "../../Libraries/Component"),
+        .project(target: "Common", path: "../../Libraries/Common"),
       ]
     ),
     .target(
