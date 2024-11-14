@@ -13,8 +13,8 @@ let template = Template(
     .file(path: "Project.swift", templatePath: "project.stencil"),
     .file(path: "Sources/\(nameAttribute)Client.swift", templatePath: "client.stencil"),
     .file(path: "Sources/\(nameAttribute)Feature.swift", templatePath: "feature.stencil"),
-
-    // Tests (conditional)
+    
+    // Tests (conditional) 
     .file(
       path: "Tests/\(nameAttribute)Tests.swift",
       templatePath: "tests.stencil",
