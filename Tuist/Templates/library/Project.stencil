@@ -11,38 +11,41 @@ let project = Project(
   ),
   targets: [
     .target(
-      name: "{{ name }}",
-      destinations: env.destinations,
-      product: .staticFramework,
-      bundleId: "\(env.organizationName).{{ name }}",
-      deploymentTargets: env.deploymentTargets,
-      sources: ["Sources/**"],
-      dependencies: [
-        .target(name: "{{ name }}Interface"),
-        .external(name: "Dependencies"),
-      ]
-    ),
-    .target(
       name: "{{ name }}Interface",
       destinations: env.destinations,
-      product: .staticFramework,
+      product: .framework,
       bundleId: "\(env.organizationName).{{ name }}Interface",
       deploymentTargets: env.deploymentTargets,
+      infoPlist: .default,
       sources: ["Interface/**"],
       dependencies: [
         .external(name: "Dependencies"),
-        .external(name: "DependenciesMacros"),
+        .external(name: "DependenciesMacros")
+      ]
+    ),
+    .target(
+      name: "{{ name }}",
+      destinations: env.destinations,
+      product: .framework,
+      bundleId: "\(env.organizationName).{{ name }}",
+      deploymentTargets: env.deploymentTargets,
+      infoPlist: .default,
+      sources: ["Sources/**"],
+      dependencies: [
+        .target(name: "{{ name }}Interface"),
+        .external(name: "ComposableArchitecture")
       ]
     ),
     .target(
       name: "{{ name }}Testing",
       destinations: env.destinations,
-      product: .staticFramework,
+      product: .framework,
       bundleId: "\(env.organizationName).{{ name }}Testing",
       deploymentTargets: env.deploymentTargets,
+      infoPlist: .default,
       sources: ["Testing/**"],
       dependencies: [
-        .target(name: "{{ name }}Interface"),
+        .target(name: "{{ name }}Interface")
       ]
     ),
     .target(
@@ -51,12 +54,14 @@ let project = Project(
       product: .unitTests,
       bundleId: "\(env.organizationName).{{ name }}Tests",
       deploymentTargets: env.deploymentTargets,
+      infoPlist: .default,
       sources: ["Tests/**"],
       dependencies: [
         .target(name: "{{ name }}"),
         .target(name: "{{ name }}Interface"),
         .target(name: "{{ name }}Testing"),
+        .external(name: "ComposableArchitecture")
       ]
-    ),
+    )
   ]
 )
