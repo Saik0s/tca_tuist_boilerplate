@@ -124,12 +124,17 @@ extension TaskProcessorClient: DependencyKey {
             while true {
               if let task = await queue.get(taskId: taskId) {
                 continuation.yield(task.progress)
-                if task.state == .completed || task.state == .cancelled || task.state == .paused {
+                if task.state == .completed || task.state == .cancelled || task.state == .paused || task.state == .failed {
                   continuation.finish()
                   break
                 }
               }
-              try await clock.sleep(for: .milliseconds(500))
+              do {
+                try await clock.sleep(for: .milliseconds(500))
+              } catch {
+                continuation.finish()
+                break
+              }
             }
           }
         }
@@ -141,17 +146,21 @@ extension TaskProcessorClient: DependencyKey {
             while true {
               if let state = await queue.getState(taskId) {
                 continuation.yield(state)
-                if case .completed = state {
+                switch state {
+                case .completed, .cancelled, .paused, .failed:
+                  continuation.finish()
                   break
-                } else if case .cancelled = state {
-                  break
-                } else if case .paused = state {
+                default:
                   break
                 }
               }
-              try await clock.sleep(for: .milliseconds(500))
+              do {
+                try await clock.sleep(for: .milliseconds(500))
+              } catch {
+                continuation.finish()
+                break
+              }
             }
-            continuation.finish()
           }
         }
       },
