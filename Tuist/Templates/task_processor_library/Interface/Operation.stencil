@@ -1,0 +1,22 @@
+//
+// {{ name }}Operation.swift
+//
+
+import Dependencies
+import DependenciesMacros
+import Foundation
+
+public typealias {{ name }}Operation = @Sendable (ProcessorTaskInput, @escaping (_ progress: Double) -> Void) async throws -> ProcessorTaskResult
+
+// MARK: - {{ name }}OperationKey
+
+public enum {{ name }}OperationKey: TestDependencyKey {
+  public static let testValue: {{ name }}Operation = { _, _ in throw ProcessorTaskError.failed("Implementation not provided") }
+}
+
+public extension DependencyValues {
+  var {{ name | lowerFirstWord }}Operation: {{ name }}Operation {
+    get { self[{{ name }}OperationKey.self] }
+    set { self[{{ name }}OperationKey.self] = newValue }
+  }
+}

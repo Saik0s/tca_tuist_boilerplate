@@ -1,0 +1,52 @@
+//
+// Live{{ name }}Client.swift
+//
+
+import Dependencies
+import Foundation
+import {{ name }}Interface
+
+// MARK: - {{ name }}Client + DependencyKey
+
+extension {{ name }}Client: @retroactive DependencyKey {
+  public static let liveValue: Self = {
+    @Dependency(\.{{ name | lowerFirstWord }}Operation) var {{ name | lowerFirstWord }}Operation
+    let taskManager = TaskManager({{ name | lowerFirstWord }}Operation: {{ name | lowerFirstWord }}Operation)
+
+    return Self(
+      addTaskToQueue: { input in
+        Task {
+          await taskManager.addTaskToQueue(input)
+        }
+      },
+      observeQueue: {
+        await taskManager.observeQueue()
+      },
+      observeTaskProgress: { taskId in
+        await taskManager.observeTaskProgress(taskId: taskId)
+      },
+      observeTaskState: { taskId in
+        await taskManager.observeTaskState(taskId: taskId)
+      },
+      pauseTask: { taskId in
+        await taskManager.pauseTask(taskId: taskId)
+      },
+      resumeTask: { taskId in
+        await taskManager.resumeTask(taskId: taskId)
+      },
+      cancelTask: { taskId in
+        await taskManager.cancelTask(taskId: taskId)
+      },
+      getTaskState: { taskId in
+        await taskManager.getTaskState(taskId: taskId)
+      }
+    )
+  }()
+}
+
+public extension DependencyValues {
+  var {{ name | lowerFirstWord }}Client: {{ name }}Client {
+    get { self[{{ name }}Client.self] }
+    set { self[{{ name }}Client.self] = newValue }
+  }
+}
