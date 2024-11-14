@@ -19,8 +19,8 @@ let project = Project(
       infoPlist: .default,
       sources: ["Interface/**"],
       dependencies: [
-        .external(name: "Dependencies", condition: nil),
-        .external(name: "DependenciesMacros", condition: nil)
+        .external(name: "Dependencies"),
+        .external(name: "DependenciesMacros"),
       ]
     ),
     .target(
@@ -33,19 +33,7 @@ let project = Project(
       sources: ["Sources/**"],
       dependencies: [
         .target(name: "{{ name }}Interface"),
-        .external(name: "ComposableArchitecture", condition: nil)
-      ]
-    ),
-    .target(
-      name: "{{ name }}Testing",
-      destinations: env.destinations,
-      product: .framework,
-      bundleId: "\(env.organizationName).{{ name }}Testing",
-      deploymentTargets: env.deploymentTargets,
-      infoPlist: .default,
-      sources: ["Testing/**"],
-      dependencies: [
-        .target(name: "{{ name }}Interface")
+        .external(name: "ComposableArchitecture")
       ]
     ),
     .target(
@@ -59,9 +47,7 @@ let project = Project(
       dependencies: [
         .target(name: "{{ name }}"),
         .target(name: "{{ name }}Interface"),
-        .target(name: "{{ name }}Testing"),
-        .external(name: "ComposableArchitecture", condition: nil),
-        .external(name: "SnapshotTesting", condition: nil)
+        .external(name: "ComposableArchitecture").
       ]
     )
   ]

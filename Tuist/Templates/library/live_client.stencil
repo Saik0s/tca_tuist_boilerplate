@@ -8,7 +8,7 @@ extension {{ name }}Client: DependencyKey {
         Task {
           // Simulate task startup
           continuation.yield(.started)
-          
+
           var progress: Double = 0
           while progress < 1.0 {
             try await Task.sleep(for: .milliseconds(500))
@@ -20,7 +20,7 @@ extension {{ name }}Client: DependencyKey {
               estimatedTimeRemaining: 1.0
             )))
           }
-          
+
           continuation.yield(.completed(TaskResult(
             processedUnits: 100,
             duration: 5.0,
@@ -50,4 +50,11 @@ extension {{ name }}Client: DependencyKey {
       }
     }
   )
+}
+
+public extension DependencyValues {
+  var {{ name | lowerFirstWord }}Client: {{ name }}Client {
+    get { self[{{ name }}Client.self] }
+    set { self[{{ name }}Client.self] = newValue }
+  }
 }

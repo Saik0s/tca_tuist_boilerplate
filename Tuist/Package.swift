@@ -16,7 +16,7 @@ let package = Package(
   name: "TCATuistBoilerplate",
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.15.2"),
-    .package(url: "https://github.com/pointfreeco/swift-dependencies.git", from: "1.0.0"),
+    .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.5.2"),
     .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.5"),
   ]
 )
