@@ -23,7 +23,10 @@ extension TaskProcessorClient: DependencyKey {
     }
 
     func update(taskId: String, state: TaskState) {
-      tasks[taskId]?.state = state
+      if var task = tasks[taskId] {
+        task.state = state
+        tasks[taskId] = task
+      }
     }
 
     func update(taskId: String, progress: Double) {
@@ -66,10 +69,18 @@ extension TaskProcessorClient: DependencyKey {
             let task = Task {
               var progress: Double = 0
               while progress <= 0.9 {
-                try await clock.sleep(for: .milliseconds(500))
-                progress = min(1.0, progress + 0.1)
-                await queue.update(taskId: input.id, progress: progress)
-                continuation.yield(.progress(progress))
+                do {
+                  try await clock.sleep(for: .milliseconds(500))
+                  progress = min(1.0, progress + 0.1)
+                  await queue.update(taskId: input.id, progress: progress)
+                  continuation.yield(.progress(progress))
+                } catch {
+                  if error is CancellationError {
+                    continuation.finish()
+                    return
+                  }
+                  throw error
+                }
               }
 
               await queue.update(taskId: input.id, state: .completed)
@@ -109,13 +120,13 @@ extension TaskProcessorClient: DependencyKey {
             while true {
               if let task = await queue.get(taskId: taskId) {
                 continuation.yield(task.progress)
-                if task.state == .completed || task.state == .cancelled {
+                if task.state == .completed || task.state == .cancelled || task.state == .failed {
+                  continuation.finish()
                   break
                 }
               }
               try await clock.sleep(for: .milliseconds(500))
             }
-            continuation.finish()
           }
         }
       },
