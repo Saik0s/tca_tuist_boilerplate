@@ -152,7 +152,7 @@ final class TaskProcessorTests: XCTestCase {
 
     let input = ProcessorTaskInput(id: taskId)
     let streamTask = Task {
-      _ = client.startTask(input)
+      for await _ in client.startTask(input) {}
     }
 
     let progressTask = Task {
