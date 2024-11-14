@@ -33,7 +33,7 @@ final class TaskProcessorTests: XCTestCase {
     }
     await clock.advance(by: .milliseconds(500))
 
-    await eventsTask.value
+    try await eventsTask.value
     timeoutTask.cancel()
 
     XCTAssertEqual(receivedEvents.count, 15) // started + stateChanges + 11 progress + completed
@@ -90,7 +90,7 @@ final class TaskProcessorTests: XCTestCase {
     }
 
     await clock.advance(by: .milliseconds(500))
-    await streamTask.value
+    try await streamTask.value
     timeoutTask.cancel()
 
     try await client.cancelTask(taskId)
@@ -122,7 +122,7 @@ final class TaskProcessorTests: XCTestCase {
     }
 
     await clock.advance(by: .milliseconds(500))
-    await streamTask.value
+    try await streamTask.value
 
     try await client.pauseTask(taskId)
     var state = await client.getTaskState(taskId)
@@ -163,7 +163,7 @@ final class TaskProcessorTests: XCTestCase {
       await clock.advance(by: .milliseconds(500))
     }
 
-    await streamTask.value
+    try await streamTask.value
     await progressTask.value
 
     XCTAssertGreaterThan(progressValues.count, 0)
