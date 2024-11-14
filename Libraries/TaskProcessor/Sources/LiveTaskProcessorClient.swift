@@ -4,7 +4,7 @@ import Dependencies
 extension TaskProcessorClient: DependencyKey {
   private actor TaskQueue {
     enum TaskState {
-      case notStarted, running, paused, completed, cancelled
+      case notStarted, running, paused, completed, cancelled, failed
     }
 
     struct QueuedTask {
@@ -49,6 +49,7 @@ extension TaskProcessorClient: DependencyKey {
         case .paused: .paused
         case .completed: .completed
         case .cancelled: .cancelled
+        case .failed: .failed(ProcessorTaskError.failed("Task failed"))
       }
     }
   }
@@ -124,7 +125,7 @@ extension TaskProcessorClient: DependencyKey {
             while true {
               if let task = await queue.get(taskId: taskId) {
                 continuation.yield(task.progress)
-                if task.state == .completed || task.state == .cancelled || task.state == .paused || task.state == .failed {
+                if task.state == .completed || task.state == .cancelled || task.state == .paused {
                   continuation.finish()
                   break
                 }
