@@ -16,24 +16,27 @@ extension TaskProcessorClient: DependencyKey {
 
     private var tasks: [String: QueuedTask] = [:]
 
-    func add(taskId: String) -> QueuedTask {
+    func add(taskId: String) async -> QueuedTask {
       let task = QueuedTask(id: taskId, state: .notStarted, progress: 0)
       tasks[taskId] = task
       return task
     }
 
-    func update(taskId: String, state: TaskState) {
+    func update(taskId: String, state: TaskState) async {
       if var task = tasks[taskId] {
         task.state = state
         tasks[taskId] = task
       }
     }
 
-    func update(taskId: String, progress: Double) {
-      tasks[taskId]?.progress = progress
+    func update(taskId: String, progress: Double) async {
+      if var task = tasks[taskId] {
+        task.progress = progress
+        tasks[taskId] = task
+      }
     }
 
-    func update(taskId: String, task: Task<Void, Error>) {
+    func update(taskId: String, task: Task<Void, Error>) async {
       tasks[taskId]?.task = task
     }
 
@@ -70,7 +73,7 @@ extension TaskProcessorClient: DependencyKey {
 
             let task = Task {
               var progress: Double = 0.0
-              for i in 1...10 {
+              for i in 0...10 {
                 do {
                   try await clock.sleep(for: .milliseconds(500))
                   if Task.isCancelled { throw CancellationError() }
@@ -187,5 +190,26 @@ public extension DependencyValues {
   var taskProcessorClient: TaskProcessorClient {
     get { self[TaskProcessorClient.self] }
     set { self[TaskProcessorClient.self] = newValue }
+  }
+}
+extension AsyncSequence {
+  func timeout(_ duration: Duration) -> AsyncThrowingStream<Element, Error> {
+    AsyncThrowingStream { continuation in
+      Task {
+        do {
+          for try await element in self {
+            continuation.yield(element)
+          }
+          continuation.finish()
+        } catch {
+          continuation.finish(throwing: error)
+        }
+      }
+
+      Task {
+        try await Task.sleep(for: duration)
+        continuation.finish(throwing: CancellationError())
+      }
+    }
   }
 }

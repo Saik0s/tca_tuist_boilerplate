@@ -17,7 +17,7 @@ final class TaskProcessorTests: XCTestCase {
     }
 
     let eventsTask = Task {
-      for await event in client.startTask(input) {
+      for try await event in client.startTask(input).timeout(.seconds(5)) {
         receivedEvents.append(event)
       }
     }
@@ -145,7 +145,7 @@ final class TaskProcessorTests: XCTestCase {
     }
 
     let progressTask = Task {
-      for await progress in client.observeTaskProgress(taskId) {
+      for try await progress in client.observeTaskProgress(taskId).timeout(.seconds(5)) {
         progressValues.append(progress)
         if progress >= 1.0 { break }
       }
