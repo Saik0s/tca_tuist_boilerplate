@@ -40,11 +40,11 @@ extension TaskProcessorClient: DependencyKey {
       tasks[taskId]?.task = task
     }
 
-    func get(taskId: String) -> QueuedTask? {
+    func get(taskId: String) async -> QueuedTask? {
       tasks[taskId]
     }
 
-    func getState(_ taskId: String) -> ProcessorTaskState? {
+    func getState(_ taskId: String) async -> ProcessorTaskState? {
       guard let task = tasks[taskId] else { return nil }
       return switch task.state {
         case .notStarted: .notStarted
@@ -105,7 +105,7 @@ extension TaskProcessorClient: DependencyKey {
       },
 
       pauseTask: { taskId in
-        if let task = await queue.get(taskId: taskId) {
+        if let task = try await queue.get(taskId: taskId) {
           await queue.update(taskId: taskId, state: .paused)
           task.task?.cancel()
         }
@@ -116,7 +116,7 @@ extension TaskProcessorClient: DependencyKey {
       },
 
       cancelTask: { taskId in
-        if let task = await queue.get(taskId: taskId) {
+        if let task = try await queue.get(taskId: taskId) {
           await queue.update(taskId: taskId, state: .cancelled)
           task.task?.cancel()
         }
