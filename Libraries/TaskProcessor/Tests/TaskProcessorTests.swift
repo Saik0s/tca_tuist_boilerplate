@@ -163,7 +163,7 @@ final class TaskProcessorTests: XCTestCase {
     }
 
     // Advance clock for both tasks
-    for _ in 0 ..< 10 {
+    for _ in 0 ..< 11 {
       await clock.advance(by: .milliseconds(500))
     }
 
