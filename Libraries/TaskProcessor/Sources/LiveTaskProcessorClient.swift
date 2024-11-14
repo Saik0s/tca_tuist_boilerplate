@@ -69,12 +69,12 @@ extension TaskProcessorClient: DependencyKey {
             continuation.yield(.stateChanged(.running))
 
             let task = Task {
-              var progress: Double = 0
-              while progress <= 0.9 {
+              var progress: Double = 0.0
+              for i in 1...10 {
                 do {
                   try await clock.sleep(for: .milliseconds(500))
                   if Task.isCancelled { throw CancellationError() }
-                  progress = min(1.0, progress + 0.1)
+                  progress = Double(i) / 10.0
                   await queue.update(taskId: input.id, progress: progress)
                   continuation.yield(.progress(progress))
                 } catch {
@@ -122,21 +122,26 @@ extension TaskProcessorClient: DependencyKey {
       observeTaskProgress: { taskId in
         AsyncStream { continuation in
           Task {
-            while true {
+            var attempts = 0
+            let maxAttempts = 100 // Prevent infinite loops
+            
+            while attempts < maxAttempts {
               if let task = await queue.get(taskId: taskId) {
                 continuation.yield(task.progress)
-                if task.state == .completed || task.state == .cancelled || task.state == .paused {
+                if task.state == .completed || task.state == .cancelled || task.state == .failed {
                   continuation.finish()
                   break
                 }
               }
               do {
                 try await clock.sleep(for: .milliseconds(500))
+                attempts += 1
               } catch {
                 continuation.finish()
                 break
               }
             }
+            continuation.finish()
           }
         }
       },
@@ -144,24 +149,29 @@ extension TaskProcessorClient: DependencyKey {
       observeTaskState: { taskId in
         AsyncStream { continuation in
           Task {
-            while true {
+            var attempts = 0
+            let maxAttempts = 100 // Prevent infinite loops
+            
+            while attempts < maxAttempts {
               if let state = await queue.getState(taskId) {
                 continuation.yield(state)
                 switch state {
-                case .completed, .cancelled, .paused, .failed:
+                case .completed, .cancelled, .failed:
                   continuation.finish()
-                  break
+                  return
                 default:
                   break
                 }
               }
               do {
                 try await clock.sleep(for: .milliseconds(500))
+                attempts += 1
               } catch {
                 continuation.finish()
                 break
               }
             }
+            continuation.finish()
           }
         }
       },
