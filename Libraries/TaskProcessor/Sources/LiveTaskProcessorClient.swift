@@ -110,7 +110,7 @@ extension TaskProcessorClient: DependencyKey {
       },
 
       pauseTask: { taskId in
-        if let task = try await queue.get(taskId: taskId) {
+        if let task = await queue.get(taskId: taskId) {
           queue.update(taskId: taskId, state: .paused)
           task.task?.cancel()
         }
@@ -121,7 +121,7 @@ extension TaskProcessorClient: DependencyKey {
       },
 
       cancelTask: { taskId in
-        if let task = try await queue.get(taskId: taskId) {
+        if let task = await queue.get(taskId: taskId) {
           await queue.update(taskId: taskId, state: .cancelled)
           task.task?.cancel()
         }
