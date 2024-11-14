@@ -68,37 +68,3 @@ buildServer.json
 
 .env
 designs/
-# Xcode
-DerivedData/
-*.xcworkspace
-*.xcuserdata
-*.xcodeproj/project.xcworkspace/
-*.xcodeproj/xcuserdata/
-
-# Swift Package Manager
-.build/
-.swiftpm/
-
-# CocoaPods
-Pods/
-Podfile.lock
-
-# Carthage
-Carthage/Build/
-
-# Fastlane
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots
-
-# Build generated
-build/
-*.app
-*.ipa
-*.dSYM.zip
-*.dSYM
-
-# Other
-*.DS_Store
-*.env
-*.xcconfig
