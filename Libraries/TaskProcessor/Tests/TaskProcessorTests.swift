@@ -75,7 +75,7 @@ final class TaskProcessorTests: XCTestCase {
     let input = ProcessorTaskInput(id: taskId)
     let streamTask = Task {
       var started = false
-      for await event in client.startTask(input) {
+      for try await event in client.startTask(input) {
         if case .started = event {
           started = true
           break
@@ -112,7 +112,7 @@ final class TaskProcessorTests: XCTestCase {
     let input = ProcessorTaskInput(id: taskId)
     let streamTask = Task {
       var started = false
-      for await event in client.startTask(input) {
+      for try await event in client.startTask(input) {
         if case .started = event {
           started = true
           break

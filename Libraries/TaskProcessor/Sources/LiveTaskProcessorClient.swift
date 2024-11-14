@@ -104,7 +104,7 @@ extension TaskProcessorClient: DependencyKey {
               continuation.finish()
             }
 
-            await queue.update(taskId: input.id, task: task)
+            queue.update(taskId: input.id, task: task)
           }
         }
       },
@@ -122,7 +122,7 @@ extension TaskProcessorClient: DependencyKey {
 
       cancelTask: { taskId in
         if let task = await queue.get(taskId: taskId) {
-          await queue.update(taskId: taskId, state: .cancelled)
+          queue.update(taskId: taskId, state: .cancelled)
           task.task?.cancel()
         }
       },
