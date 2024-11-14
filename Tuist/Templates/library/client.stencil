@@ -1,0 +1,240 @@
+import Dependencies
+import DependenciesMacros
+import Foundation
+
+/// A client interface that handles background processing and real-time updates
+/// This pattern is useful for long-running tasks like data processing, file operations,
+/// or complex calculations that need to provide progress updates
+@DependencyClient
+public struct {{ name }}Client {
+  // MARK: - Stream Operations
+
+  /// Starts a background task and provides real-time updates
+  /// Example: Processing large files, running ML models, or batch operations
+  public var startProcess: @Sendable (ProcessInput) -> AsyncStream<ProcessEvent>
+
+  /// Observes the current state of processing
+  /// Useful for showing real-time status in UI
+  public var observeProcessState: @Sendable () -> AsyncStream<ProcessState>
+
+  /// Provides detailed progress updates for ongoing operations
+  public var observeProgress: @Sendable () -> AsyncStream<ProgressUpdate>
+
+  // MARK: - Control Operations
+
+  /// Pauses the current process
+  public var pauseProcess: @Sendable () async throws -> Void
+
+  /// Resumes a paused process
+  public var resumeProcess: @Sendable () async throws -> Void
+
+  /// Cancels the current process
+  public var cancelProcess: @Sendable () async throws -> Void
+}
+
+// MARK: - Models
+
+public struct ProcessInput: Equatable {
+  public let id: UUID
+  public let configuration: ProcessConfiguration
+
+  public init(id: UUID = UUID(), configuration: ProcessConfiguration) {
+    self.id = id
+    self.configuration = configuration
+  }
+}
+
+public struct ProcessConfiguration: Equatable {
+  public let batchSize: Int
+  public let priority: ProcessPriority
+  public let options: Set<ProcessOption>
+
+  public init(
+    batchSize: Int = 100,
+    priority: ProcessPriority = .normal,
+    options: Set<ProcessOption> = []
+  ) {
+    self.batchSize = batchSize
+    self.priority = priority
+    self.options = options
+  }
+}
+
+public enum ProcessPriority: Equatable {
+  case low, normal, high
+}
+
+public enum ProcessOption: Hashable {
+  case retryOnFailure
+  case validateResults
+  case cacheIntermediateResults
+}
+
+public enum ProcessEvent: Equatable {
+  case started
+  case progress(ProgressUpdate)
+  case paused
+  case resumed
+  case completed(ProcessResult)
+  case failed(ProcessError)
+}
+
+public struct ProgressUpdate: Equatable {
+  public let completedItems: Int
+  public let totalItems: Int
+  public let currentPhase: ProcessPhase
+  public let estimatedTimeRemaining: TimeInterval?
+
+  public var progress: Double {
+    guard totalItems > 0 else { return 0 }
+    return Double(completedItems) / Double(totalItems)
+  }
+}
+
+public enum ProcessPhase: Equatable {
+  case preparing
+  case processing(stage: Int, totalStages: Int)
+  case finalizing
+}
+
+public struct ProcessResult: Equatable {
+  public let processedItems: Int
+  public let duration: TimeInterval
+  public let summary: String
+}
+
+public enum ProcessState: Equatable {
+  case idle
+  case running(ProgressUpdate)
+  case paused(ProgressUpdate)
+  case completed(ProcessResult)
+  case failed(ProcessError)
+}
+
+public enum ProcessError: LocalizedError, Equatable {
+  case invalidInput
+  case resourceUnavailable
+  case cancelled
+  case timeout
+  case unknown(String)
+
+  public var errorDescription: String? {
+    switch self {
+    case .invalidInput: return "Invalid input provided"
+    case .resourceUnavailable: return "Required resources are unavailable"
+    case .cancelled: return "Process was cancelled"
+    case .timeout: return "Process timed out"
+    case .unknown(let message): return message
+    }
+  }
+}
+
+// MARK: - Live Implementation
+
+extension {{ name }}Client: DependencyKey {
+  public static let liveValue = Self(
+    startProcess: { input in
+      AsyncStream { continuation in
+        // Example implementation
+        continuation.yield(.started)
+        continuation.yield(.progress(.init(
+          completedItems: 0,
+          totalItems: 100,
+          currentPhase: .preparing,
+          estimatedTimeRemaining: 60
+        )))
+        continuation.finish()
+      }
+    },
+    observeProcessState: {
+      AsyncStream { continuation in
+        continuation.yield(.idle)
+        continuation.finish()
+      }
+    },
+    observeProgress: {
+      AsyncStream { continuation in
+        continuation.yield(.init(
+          completedItems: 0,
+          totalItems: 100,
+          currentPhase: .preparing,
+          estimatedTimeRemaining: 60
+        ))
+        continuation.finish()
+      }
+    },
+    pauseProcess: {},
+    resumeProcess: {},
+    cancelProcess: {}
+  )
+}
+
+public extension DependencyValues {
+  var {{ name | lowercase }}Client: {{ name }}Client {
+    get { self[{{ name }}Client.self] }
+    set { self[{{ name }}Client.self] = newValue }
+  }
+}
+import Dependencies
+import DependenciesMacros
+import Foundation
+
+/// Client interface for managing long-running task queues with real-time updates
+@DependencyClient
+public struct {{ name }}Client {
+  // MARK: - Task Management
+  
+  /// Adds a new task to the processing queue
+  public var enqueueTask: @Sendable (TaskInput) async throws -> TaskID
+  
+  /// Starts processing the task queue
+  public var startProcessing: @Sendable () async -> AsyncStream<QueueEvent>
+  
+  /// Pauses the current processing
+  public var pauseProcessing: @Sendable () async throws -> Void
+  
+  /// Resumes a paused processing
+  public var resumeProcessing: @Sendable () async throws -> Void
+  
+  /// Cancels specific task
+  public var cancelTask: @Sendable (TaskID) async throws -> Void
+  
+  /// Cancels all tasks
+  public var cancelAllTasks: @Sendable () async throws -> Void
+  
+  // MARK: - Observation
+  
+  /// Observes the current queue state
+  public var observeQueueState: @Sendable () -> AsyncStream<QueueState>
+  
+  /// Observes detailed progress for a specific task
+  public var observeTaskProgress: @Sendable (TaskID) -> AsyncStream<TaskProgress>
+  
+  /// Retrieves the current state of all tasks
+  public var getCurrentTasks: @Sendable () async throws -> [TaskStatus]
+}
+
+// MARK: - DependencyKey
+
+extension {{ name }}Client: DependencyKey {
+  public static let liveValue = Self(
+    enqueueTask: { _ in TaskID() },
+    startProcessing: { .finished },
+    pauseProcessing: {},
+    resumeProcessing: {},
+    cancelTask: { _ in },
+    cancelAllTasks: {},
+    observeQueueState: { .finished },
+    observeTaskProgress: { _ in .finished },
+    getCurrentTasks: { [] }
+  )
+  
+  public static let testValue = Self()
+}
+
+public extension DependencyValues {
+  var {{ name | lowercase }}Client: {{ name }}Client {
+    get { self[{{ name }}Client.self] }
+    set { self[{{ name }}Client.self] = newValue }
+  }
+}
