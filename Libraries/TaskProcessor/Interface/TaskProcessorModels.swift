@@ -19,7 +19,7 @@ public struct ProcessorTaskInput: Equatable {
 
 // MARK: - ProcessorTaskState
 
-public enum ProcessorTaskState: Equatable {
+public enum ProcessorTaskState: Equatable, Sendable {
   case notStarted
   case running
   case paused
@@ -67,4 +67,20 @@ public struct ProcessorTaskResult: Equatable {
 public enum ProcessorTaskError: Error, Equatable {
   case cancelled
   case failed(String)
+  case error(Error)
+
+  public static func == (lhs: Self, rhs: Self) -> Bool {
+    switch (lhs, rhs) {
+    case (.cancelled, .cancelled):
+      true
+
+    case let (.failed(l), .failed(r)):
+      l == r
+
+    case let (.error(l), .error(r)):
+      "\(l)" == "\(r)"
+    default:
+      false
+    }
+  }
 }

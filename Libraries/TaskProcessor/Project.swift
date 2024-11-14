@@ -25,6 +25,20 @@ let project = Project(
       dependencies: [
         .external(name: "Dependencies"),
         .external(name: "ComposableArchitecture"),
+        .target(name: "TaskProcessorInterface"),
+      ]
+    ),
+    .target(
+      name: "TaskProcessorInterface",
+      destinations: env.destinations,
+      product: .staticFramework,
+      bundleId: "\(env.organizationName).TaskProcessorInterface",
+      deploymentTargets: env.deploymentTargets,
+      infoPlist: .default,
+      sources: ["Interface/**"],
+      dependencies: [
+        .external(name: "Dependencies"),
+        .external(name: "ComposableArchitecture"),
       ]
     ),
     .target(
@@ -37,6 +51,7 @@ let project = Project(
       sources: ["Tests/**"],
       dependencies: [
         .target(name: "TaskProcessor"),
+        .target(name: "TaskProcessorInterface"),
         .external(name: "ComposableArchitecture"),
       ]
     ),
