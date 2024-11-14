@@ -1,136 +1,44 @@
 import Foundation
 
-// MARK: - Core Types
-
-public typealias TaskID = UUID
-
-public struct TaskInput: Sendable, Equatable {
-  public let id: TaskID
-  public let configuration: TaskConfiguration
-  public let priority: TaskPriority
-  public let metadata: [String: String]
+public struct TaskInput: Equatable {
+  public let id: String
+  public let parameters: [String: Any]
   
-  public init(
-    id: TaskID = TaskID(),
-    configuration: TaskConfiguration = .init(),
-    priority: TaskPriority = .normal,
-    metadata: [String: String] = [:]
-  ) {
+  public init(id: String, parameters: [String: Any] = [:]) {
     self.id = id
-    self.configuration = configuration
-    self.priority = priority
-    self.metadata = metadata
+    self.parameters = parameters
   }
 }
 
-public struct TaskConfiguration: Sendable, Equatable {
-  public let retryCount: Int
-  public let timeout: TimeInterval
-  public let requiresNetwork: Bool
-  
-  public init(
-    retryCount: Int = 3,
-    timeout: TimeInterval = 300,
-    requiresNetwork: Bool = true
-  ) {
-    self.retryCount = retryCount
-    self.timeout = timeout
-    self.requiresNetwork = requiresNetwork
-  }
-}
-
-// MARK: - Events & States
-
+@CasePathable
 public enum TaskEvent: Equatable {
   case started
-  case progress(TaskProgress)
+  case progress(Double)
   case completed(TaskResult)
   case failed(TaskError)
-}
-
-public enum TaskState: Equatable {
-  case idle
-  case running
-  case paused
-  case completed(TaskResult)
-  case failed(TaskError)
-}
-
-public struct TaskProgress: Equatable {
-  public let completedUnits: Int
-  public let totalUnits: Int
-  public let currentPhase: TaskPhase
-  public let estimatedTimeRemaining: TimeInterval?
   
-  public var progress: Double {
-    guard totalUnits > 0 else { return 0 }
-    return Double(completedUnits) / Double(totalUnits)
-  }
-  
-  public init(
-    completedUnits: Int,
-    totalUnits: Int,
-    currentPhase: TaskPhase,
-    estimatedTimeRemaining: TimeInterval?
-  ) {
-    self.completedUnits = completedUnits
-    self.totalUnits = totalUnits
-    self.currentPhase = currentPhase
-    self.estimatedTimeRemaining = estimatedTimeRemaining
+  public static func == (lhs: TaskEvent, rhs: TaskEvent) -> Bool {
+    switch (lhs, rhs) {
+    case (.started, .started): return true
+    case let (.progress(l), .progress(r)): return l == r
+    case let (.completed(l), .completed(r)): return l == r
+    case let (.failed(l), .failed(r)): return l == r
+    default: return false
+    }
   }
 }
 
 public struct TaskResult: Equatable {
-  public let processedUnits: Int
+  public let output: String
   public let duration: TimeInterval
-  public let metadata: [String: String]
   
-  public init(
-    processedUnits: Int,
-    duration: TimeInterval,
-    metadata: [String: String] = [:]
-  ) {
-    self.processedUnits = processedUnits
+  public init(output: String, duration: TimeInterval) {
+    self.output = output
     self.duration = duration
-    self.metadata = metadata
   }
 }
 
-// MARK: - Supporting Types
-
-public enum TaskPriority: Int, Comparable {
-  case low = 0
-  case normal = 1
-  case high = 2
-  case critical = 3
-  
-  public static func < (lhs: Self, rhs: Self) -> Bool {
-    lhs.rawValue < rhs.rawValue
-  }
-}
-
-public enum TaskPhase: Equatable {
-  case preparing
-  case processing(stage: Int, totalStages: Int)
-  case finalizing
-}
-
-public enum TaskError: LocalizedError, Equatable {
-  case invalidInput
-  case timeout
-  case networkRequired
+public enum TaskError: Error, Equatable {
   case cancelled
-  case resourceUnavailable
-  case unknown(String)
-  
-  public var errorDescription: String? {
-    switch self {
-    case .invalidInput: return "Invalid input provided"
-    case .timeout: return "Operation timed out"
-    case .networkRequired: return "Network connection required"
-    case .cancelled: return "Operation was cancelled"
-    case .resourceUnavailable: return "Required resources unavailable"
-    case .unknown(let message): return message
-    }
-  }
+  case failed(String)
 }

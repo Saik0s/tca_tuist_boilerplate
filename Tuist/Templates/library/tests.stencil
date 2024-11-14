@@ -1,44 +1,67 @@
 import XCTest
-@testable import {{ name }}
 import ComposableArchitecture
+@testable import {{ name }}
 
 final class {{ name }}Tests: XCTestCase {
   @MainActor
-  func testBasicFlow() async {
-    let store = TestStore(
-      initialState: {{ name }}Feature.State(),
-      reducer: {{ name }}Feature()
-    )
-
-    await store.send(.onAppear) {
-      $0.isLoading = true
+  func testBasicTaskFlow() async {
+    let taskId = "test-task-1"
+    let input = TaskInput(id: taskId)
+    var receivedEvents: [TaskEvent] = []
+    
+    let client = {{ name }}Client.testValue
+    
+    let stream = client.startTask(input)
+    for await event in stream {
+      receivedEvents.append(event)
     }
-
-    let items = [{{ name }}Item(title: "Test", details: "Details")]
-    await store.receive(.itemsResponse(.success(items))) {
-      $0.isLoading = false
-      $0.items = IdentifiedArray(uniqueElements: items)
+    
+    XCTAssertEqual(receivedEvents.count, 12) // started + 10 progress updates + completed
+    XCTAssertEqual(receivedEvents.first, .started)
+    XCTAssertEqual(receivedEvents.last, .completed(TaskResult(
+      output: "Task \(taskId) completed",
+      duration: 5.0
+    )))
+  }
+  
+  @MainActor
+  func testTaskCancellation() async throws {
+    let taskId = "test-task-1"
+    let client = {{ name }}Client.testValue
+    
+    do {
+      try await client.cancelTask(taskId)
+    } catch {
+      XCTFail("Cancellation should not throw: \(error)")
     }
   }
-
+  
+  @MainActor 
+  func testTaskPauseResume() async throws {
+    let taskId = "test-task-1"
+    let client = {{ name }}Client.testValue
+    
+    do {
+      try await client.pauseTask(taskId)
+      try await client.resumeTask(taskId)
+    } catch {
+      XCTFail("Pause/Resume should not throw: \(error)")
+    }
+  }
+  
   @MainActor
-  func testErrorHandling() async {
-    let store = TestStore(
-      initialState: {{ name }}Feature.State(),
-      reducer: {{ name }}Feature()
-    ) {
-      $0.{{ name | lowercase }}Client.fetchItems = {
-        throw {{ name }}Error.networkError(NSError(domain: "", code: -1))
-      }
+  func testProgressObservation() async {
+    let taskId = "test-task-1"
+    let client = {{ name }}Client.testValue
+    var progressValues: [Double] = []
+    
+    let stream = client.observeTaskProgress(taskId)
+    for await progress in stream {
+      progressValues.append(progress)
+      if progress >= 1.0 { break }
     }
-
-    await store.send(.onAppear) {
-      $0.isLoading = true
-    }
-
-    await store.receive(.itemsResponse(.failure({{ name }}Error.networkError(NSError(domain: "", code: -1))))) {
-      $0.isLoading = false
-      $0.error = {{ name }}Error.networkError(NSError(domain: "", code: -1))
-    }
+    
+    XCTAssertGreaterThan(progressValues.count, 0)
+    XCTAssertEqual(progressValues.last, 1.0, accuracy: 0.001)
   }
 }

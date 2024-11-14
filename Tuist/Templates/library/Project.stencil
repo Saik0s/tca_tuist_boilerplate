@@ -11,19 +11,6 @@ let project = Project(
   ),
   targets: [
     .target(
-      name: "{{ name }}Interface",
-      destinations: env.destinations,
-      product: .framework,
-      bundleId: "\(env.organizationName).{{ name }}Interface",
-      deploymentTargets: env.deploymentTargets,
-      infoPlist: .default,
-      sources: ["Interface/**"],
-      dependencies: [
-        .external(name: "Dependencies"),
-        .external(name: "DependenciesMacros"),
-      ]
-    ),
-    .target(
       name: "{{ name }}",
       destinations: env.destinations,
       product: .framework,
@@ -32,7 +19,7 @@ let project = Project(
       infoPlist: .default,
       sources: ["Sources/**"],
       dependencies: [
-        .target(name: "{{ name }}Interface"),
+        .external(name: "Dependencies"),
         .external(name: "ComposableArchitecture")
       ]
     ),
@@ -46,8 +33,7 @@ let project = Project(
       sources: ["Tests/**"],
       dependencies: [
         .target(name: "{{ name }}"),
-        .target(name: "{{ name }}Interface"),
-        .external(name: "ComposableArchitecture").
+        .external(name: "ComposableArchitecture")
       ]
     )
   ]

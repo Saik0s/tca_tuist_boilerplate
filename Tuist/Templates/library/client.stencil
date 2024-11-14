@@ -1,39 +1,23 @@
 import Dependencies
-import DependenciesMacros
 import Foundation
 
-/// A client interface that handles background processing and real-time updates
-/// This pattern is useful for long-running tasks like data processing, file operations,
-/// or complex calculations that need to provide progress updates
 @DependencyClient
 public struct {{ name }}Client {
-  // MARK: - Stream Operations
-
-  /// Starts a background task and provides real-time updates
-  /// Example: Processing large files, running ML models, or batch operations
-  public var startProcess: @Sendable (ProcessInput) -> AsyncStream<ProcessEvent>
-
-  /// Observes the current state of processing
-  /// Useful for showing real-time status in UI
-  public var observeProcessState: @Sendable () -> AsyncStream<ProcessState>
-
-  /// Provides detailed progress updates for ongoing operations
-  public var observeProgress: @Sendable () -> AsyncStream<ProgressUpdate>
-
-  // MARK: - Control Operations
-
-  /// Pauses the current process
-  public var pauseProcess: @Sendable () async throws -> Void
-
-  /// Resumes a paused process
-  public var resumeProcess: @Sendable () async throws -> Void
-
-  /// Cancels the current process
-  public var cancelProcess: @Sendable () async throws -> Void
+  public var startTask: @Sendable (TaskInput) -> AsyncStream<TaskEvent>
+  public var pauseTask: @Sendable (String) async throws -> Void
+  public var resumeTask: @Sendable (String) async throws -> Void 
+  public var cancelTask: @Sendable (String) async throws -> Void
+  public var observeTaskProgress: @Sendable (String) -> AsyncStream<Double>
+  public var observeTaskState: @Sendable (String) -> AsyncStream<TaskEvent>
 }
 
-// MARK: TestDependencyKey
-
 extension {{ name }}Client: TestDependencyKey {
-  public static let testValue = Self()
+  public static let testValue = Self(
+    startTask: { _ in .finished },
+    pauseTask: { _ in },
+    resumeTask: { _ in },
+    cancelTask: { _ in },
+    observeTaskProgress: { _ in .finished },
+    observeTaskState: { _ in .finished }
+  )
 }
