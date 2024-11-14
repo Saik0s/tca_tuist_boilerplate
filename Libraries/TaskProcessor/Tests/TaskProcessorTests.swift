@@ -32,7 +32,7 @@ final class TaskProcessorTests: XCTestCase {
       eventsTask.cancel()
     }
 
-    for _ in 0 ..< 10 {
+    for _ in 0 ..< 11 {
       await clock.advance(by: .milliseconds(500))
     }
     await clock.advance(by: .milliseconds(500))
