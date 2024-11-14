@@ -109,6 +109,59 @@ This directory contains the main application target.
 
 - **Sources/**: The main app's Swift code, including the `App` struct and entry point.
 - **Resources/**: Assets, storyboards, and other resource files.
+- **Project.swift**: Tuist configuration for the app target.
+  ```swift
+  //
+  // Project.swift
+  //
+
+  import ProjectDescription
+  import ProjectDescriptionHelpers
+
+  let project = Project(
+    name: "TCATuistBoilerplate",
+    options: .options(
+      textSettings: .textSettings(
+        indentWidth: 2,
+        tabWidth: 2
+      )
+    ),
+    targets: [
+      .target(
+        name: "TCATuistBoilerplate",
+        destinations: env.destinations,
+        product: .app,
+        bundleId: "\(env.organizationName).TCATuistBoilerplate",
+        deploymentTargets: env.deploymentTargets,
+        infoPlist: .extendingDefault(
+          with: [
+            "UILaunchScreen": [
+              "UIColorName": "",
+              "UIImageName": "",
+            ],
+          ]
+        ),
+        sources: ["Sources/**"],
+        resources: ["Resources/**"],
+        dependencies: [
+          .project(target: "ListScreen", path: "../Features/ListScreen"),
+          .external(name: "ComposableArchitecture"),
+        ]
+      ),
+      .target(
+        name: "TCATuistBoilerplateTests",
+        destinations: env.destinations,
+        product: .unitTests,
+        bundleId: "\(env.organizationName).TCATuistBoilerplateTests",
+        deploymentTargets: env.deploymentTargets,
+        infoPlist: .default,
+        sources: ["Tests/**"],
+        resources: [],
+        dependencies: [.target(name: "TCATuistBoilerplate")]
+      ),
+    ]
+  )
+  ```
 
 #### Features/
 
@@ -176,6 +229,15 @@ Contains configurations and templates for project generation.
 
 - **Templates/**: Custom templates for scaffolding new features and libraries.
 - **Config.swift**: Global configuration for Tuist.
+  ```swift
+  //
+  // Config.swift
+  //
+
+  import ProjectDescription
+
+  let config = Config()
+  ```
 - **Dependencies.swift**: Swift Package Manager dependencies.
 - **ProjectDescriptionHelpers/**: Shared helpers and settings.
 
@@ -185,13 +247,73 @@ Contains configurations and templates for project generation.
 
 Provides common `make` commands for tasks like bootstrapping the environment, generating the project, running tests, formatting code, etc.
 
+```makefile
+MISE=$(HOME)/.local/bin/mise
+TUIST=$(MISE) x tuist -- tuist
+
+all: bootstrap project_file
+
+bootstrap:
+	command -v $(MISE) >/dev/null 2>&1 || curl https://mise.jdx.dev/install.sh | sh
+	$(MISE) install
+
+generate:
+	$(TUIST) install
+	$(TUIST) generate --no-open
+
+cache:
+	$(TUIST) cache --external-only
+	$(TUIST) generate --no-open
+
+update:
+	$(TUIST) install --update
+	$(TUIST) generate --no-open
+
+format:
+	$(MISE) x swiftlint -- swiftlint lint --force-exclude --fix .
+	$(MISE) x swiftformat -- swiftformat . --config .swiftformat
+
+lint:
+	$(MISE) x swiftlint -- swiftlint lint --force-exclude .
+
+test:
+	$(TUIST) test
+
+unit_test:
+	$(TUIST) test --skip-ui-tests
+
+clean:
+	rm -rf build
+	$(TUIST) clean
+
+.SILENT: all bootstrap generate cache update format lint test clean
+```
+
 #### .mise.toml
 
-Configuration file for Mise, managing specific tool versions used in the project (e.g., SwiftLint, SwiftFormat, Tuist versions).
+Configuration file for Mise, managing specific tool versions used in the project.
+
+```toml
+[tools]
+tuist = "4.33.0"
+swiftlint = "0.54.0"
+swiftformat = "0.53.3"
+```
 
 #### .pre-commit-config.yaml
 
 Defines pre-commit hooks using the `pre-commit` framework to automatically format code and check for code quality issues before commits.
+
+```yaml
+repos:
+- repo: local
+  hooks:
+  - id: format-and-add
+    name: Format and Add Changes
+    entry: bash -c 'make format && git add -u'
+    language: system
+    pass_filenames: false
+```
 
 ## Tools and Technologies
 
@@ -301,7 +423,7 @@ The project includes pre-commit hooks for code formatting and linting using [Swi
 
 ## Feature Module Template
 
-The project includes a **Tuist template** for generating feature modules. This template streamlines the creation of new features, ensuring consistency and adherence to the project's architecture.
+The project includes **Tuist templates** for generating feature modules and libraries. These templates streamline the creation of new features, ensuring consistency and adherence to the project's architecture.
 
 ### Using the Template
 
@@ -329,21 +451,31 @@ The project includes a **Tuist template** for generating feature modules. This t
    Add your new feature to the main app's dependencies in `TCATuistBoilerplate/Project.swift`:
 
    ```swift
+   //
+   // Project.swift
+   //
+
    import ProjectDescription
    import ProjectDescriptionHelpers
 
    let project = Project(
      name: "TCATuistBoilerplate",
+     options: .options(
+       textSettings: .textSettings(
+         indentWidth: 2,
+         tabWidth: 2
+       )
+     ),
      targets: [
-       .app(
+       .target(
          name: "TCATuistBoilerplate",
-         platforms: [.iOS],
-         //...
+         // ...
          dependencies: [
            .project(target: "YourFeature", path: "../Features/YourFeature"),
            // Other dependencies...
          ]
-       )
+       ),
+       // Other targets...
      ]
    )
    ```
@@ -375,6 +507,24 @@ YourFeature/
 └── Tests/                  # Unit and snapshot tests
     ├── YourFeatureTests.swift
     └── YourFeatureSnapshotTests.swift
+```
+
+### Creating a Library Module
+
+Similarly, you can create a new library module using the provided template:
+
+```bash
+tuist scaffold task_processor_library --name YourLibrary
+```
+
+This will create a library module at `Libraries/YourLibrary/` with the following structure:
+
+```plaintext
+YourLibrary/
+├── Project.swift
+├── Interface/
+├── Sources/
+└── Tests/
 ```
 
 ## Common Tasks
@@ -436,11 +586,11 @@ make cache
 ## Tips
 
 - **Use Mise for Consistent Environments**: Mise ensures that all developers use the same versions of tools, which helps prevent inconsistencies and "works on my machine" issues.
+- **Leverage Pre-commit Hooks**: Install and configure pre-commit hooks to enforce code quality standards automatically.
+- **Understand TCA Concepts**: Familiarize yourself with reducers, actions, state, and effects in TCA to effectively implement features.
 - **Modularize Your Code**: Keep your features and components modular. This makes your codebase more maintainable and testable.
 - **Write Tests Early**: Leverage TCA's testability to write unit and integration tests as you develop new features.
 - **Leverage Tuist Templates**: Use the provided Tuist templates to scaffold new features and components. This ensures consistency across your codebase.
-- **Use Pre-commit Hooks**: Install and configure pre-commit hooks to enforce code quality standards automatically.
-- **Understand TCA Concepts**: Familiarize yourself with reducers, actions, state, and effects in TCA to effectively implement features.
 - **Regularly Update Dependencies**: Keep your dependencies up to date to benefit from the latest features and bug fixes.
 - **Document Your Code**: Maintain clear documentation within your code to make it easier for others (and future you) to understand.
 
