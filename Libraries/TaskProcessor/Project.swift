@@ -1,8 +1,12 @@
+//
+// Project.swift
+//
+
 import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project(
-  name: "{{ name }}",
+  name: "TaskProcessor",
   options: .options(
     textSettings: .textSettings(
       indentWidth: 2,
@@ -11,30 +15,30 @@ let project = Project(
   ),
   targets: [
     .target(
-      name: "{{ name }}",
+      name: "TaskProcessor",
       destinations: env.destinations,
       product: .staticFramework,
-      bundleId: "\(env.organizationName).{{ name }}",
+      bundleId: "\(env.organizationName).TaskProcessor",
       deploymentTargets: env.deploymentTargets,
       infoPlist: .default,
       sources: ["Sources/**"],
       dependencies: [
         .external(name: "Dependencies"),
-        .external(name: "ComposableArchitecture")
+        .external(name: "ComposableArchitecture"),
       ]
     ),
     .target(
-      name: "{{ name }}Tests",
+      name: "TaskProcessorTests",
       destinations: env.destinations,
       product: .unitTests,
-      bundleId: "\(env.organizationName).{{ name }}Tests",
+      bundleId: "\(env.organizationName).TaskProcessorTests",
       deploymentTargets: env.deploymentTargets,
       infoPlist: .default,
       sources: ["Tests/**"],
       dependencies: [
-        .target(name: "{{ name }}"),
-        .external(name: "ComposableArchitecture")
+        .target(name: "TaskProcessor"),
+        .external(name: "ComposableArchitecture"),
       ]
-    )
+    ),
   ]
 )

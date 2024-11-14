@@ -1,6 +1,10 @@
-import XCTest
+//
+// TaskProcessorTests.swift
+//
+
 import Dependencies
 @testable import TaskProcessor
+import XCTest
 
 final class TaskProcessorTests: XCTestCase {
   @MainActor
@@ -24,11 +28,11 @@ final class TaskProcessorTests: XCTestCase {
 
     // Start a timeout task
     let timeoutTask = Task {
-        try await Task.sleep(for: .seconds(5))
-        eventsTask.cancel()
+      try await Task.sleep(for: .seconds(5))
+      eventsTask.cancel()
     }
 
-    for _ in 0..<10 {
+    for _ in 0 ..< 10 {
       await clock.advance(by: .milliseconds(500))
     }
     await clock.advance(by: .milliseconds(500))
@@ -41,16 +45,16 @@ final class TaskProcessorTests: XCTestCase {
 
     // Extract only the progress events
     let progressEvents = receivedEvents.compactMap { event -> Double? in
-        if case let .progress(value) = event { return value } else { return nil }
+      if case let .progress(value) = event { return value } else { return nil }
     }
-    
+
     // Assert the count of progress events
     XCTAssertEqual(progressEvents.count, 11)
-    
+
     // Check each progress value
     for (index, value) in progressEvents.enumerated() {
-        let expected = Double(index) / 10.0
-        XCTAssertEqual(value, expected, accuracy: 0.001)
+      let expected = Double(index) / 10.0
+      XCTAssertEqual(value, expected, accuracy: 0.001)
     }
 
     if case let .completed(result) = receivedEvents.last {
@@ -159,18 +163,18 @@ final class TaskProcessorTests: XCTestCase {
     }
 
     // Advance clock for both tasks
-    for _ in 0..<10 {
+    for _ in 0 ..< 10 {
       await clock.advance(by: .milliseconds(500))
     }
 
-    try await streamTask.value
-    await progressTask.value
+    await streamTask.value
+    try await progressTask.value
 
     XCTAssertGreaterThan(progressValues.count, 0)
     XCTAssertEqual(progressValues.last!, 1.0, accuracy: 0.001)
 
-    for i in 1..<progressValues.count {
-      XCTAssertGreaterThan(progressValues[i], progressValues[i-1])
+    for i in 1 ..< progressValues.count {
+      XCTAssertGreaterThan(progressValues[i], progressValues[i - 1])
     }
   }
 }

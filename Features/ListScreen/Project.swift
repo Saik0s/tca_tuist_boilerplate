@@ -26,6 +26,7 @@ let project = Project(
         .external(name: "Inject"),
         .target(name: "ListScreenInterface"),
         .target(name: "ListScreenTesting"),
+        .project(target: "TaskProcessor", path: "../../Libraries/TaskProcessor"),
       ]
     ),
     .target(

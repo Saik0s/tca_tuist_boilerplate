@@ -1,5 +1,11 @@
-import Foundation
+//
+// LiveTaskProcessorClient.swift
+//
+
 import Dependencies
+import Foundation
+
+// MARK: - TaskProcessorClient + DependencyKey
 
 extension TaskProcessorClient: DependencyKey {
   private actor TaskQueue {
@@ -47,12 +53,12 @@ extension TaskProcessorClient: DependencyKey {
     func getState(_ taskId: String) async -> ProcessorTaskState? {
       guard let task = tasks[taskId] else { return nil }
       return switch task.state {
-        case .notStarted: .notStarted
-        case .running: .running
-        case .paused: .paused
-        case .completed: .completed
-        case .cancelled: .cancelled
-        case .failed: .failed(ProcessorTaskError.failed("Task failed"))
+      case .notStarted: .notStarted
+      case .running: .running
+      case .paused: .paused
+      case .completed: .completed
+      case .cancelled: .cancelled
+      case .failed: .failed(ProcessorTaskError.failed("Task failed"))
       }
     }
   }
@@ -72,12 +78,12 @@ extension TaskProcessorClient: DependencyKey {
             continuation.yield(.stateChanged(.running))
 
             let task = Task {
-              var progress: Double = 0.0
-              for i in 0...10 {
+              var progress = 0.0
+              for i in 0 ... 10 {
                 do {
                   // Check if the task is paused
-                  while (await queue.getState(input.id) == .paused) {
-                      try await clock.sleep(for: .milliseconds(100))
+                  while await queue.getState(input.id) == .paused {
+                    try await clock.sleep(for: .milliseconds(100))
                   }
 
                   try await clock.sleep(for: .milliseconds(500))
@@ -132,7 +138,7 @@ extension TaskProcessorClient: DependencyKey {
           Task {
             var attempts = 0
             let maxAttempts = 100 // Prevent infinite loops
-            
+
             while attempts < maxAttempts {
               if let task = await queue.get(taskId: taskId) {
                 continuation.yield(task.progress)
@@ -159,14 +165,15 @@ extension TaskProcessorClient: DependencyKey {
           Task {
             var attempts = 0
             let maxAttempts = 100 // Prevent infinite loops
-            
+
             while attempts < maxAttempts {
               if let state = await queue.getState(taskId) {
                 continuation.yield(state)
                 switch state {
-                case .completed, .cancelled, .failed:
+                case .cancelled, .completed, .failed:
                   continuation.finish()
                   return
+
                 default:
                   break
                 }
@@ -197,6 +204,7 @@ public extension DependencyValues {
     set { self[TaskProcessorClient.self] = newValue }
   }
 }
+
 extension AsyncSequence {
   func timeout(_ duration: Duration) -> AsyncThrowingStream<Element, Error> {
     AsyncThrowingStream { continuation in
